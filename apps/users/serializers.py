@@ -6,9 +6,10 @@ from rest_framework.validators import UniqueValidator
 from Utils.oauth import Google
 from .models import User
 from globals import config
+from django.db.models import Q
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all(), message="cet email est déjà pris")])
+    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all(), message="cet email existe déjà")])
     date_of_birth = serializers.DateField(required=True)
     class Meta:
         model = User
@@ -37,6 +38,22 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
             user.save()
         return user
+
+    def update(self, instance, validated_data):
+        try:
+            user = User.objects.get(~Q(id=instance.id), email=validated_data.get('email'))
+            if user:
+                raise serializers.ValidationError({ 'email': 'cet email existe déjà' })
+        except User.DoesNotExist:
+            instance.email = validated_data.get('email', instance.email)
+        instance.firstname = validated_data.get('firstname', instance.firstname)
+        instance.lastname = validated_data.get('lastname', instance.lastname)
+        instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
+        instance.gender = validated_data.get('gender', instance.gender)
+        instance.auth_provider = validated_data.get('gender', instance.auth_provider)
+        instance.phone_number = validated_data.get('gender', instance.phone_number)
+        instance.save()
+        return instance
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

@@ -10,4 +10,5 @@ urlpatterns = [
     path('login', views.LoginView.as_view()),
     path('current', views.GetLogedUser.as_view()),
     path('login/google', views.GoogleLoginView.as_view()),
+    path('profile', views.ProfileView.as_view())
 ] + router.urls

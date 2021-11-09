@@ -91,3 +91,24 @@ class UserAdminView(viewsets.ViewSet):
         user.save()
         serializer = self.serializer_class(user)
         return sendRes(status.HTTP_200_OK, data=serializer.data, msg="Utilisateur supprimé")
+
+class ProfileView(APIView):
+    permission_classes = [VerifyToken]
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        try:
+            user = User.objects.get(id=request.user.id, is_active=True)
+            serializer = UserSerializer(user)
+            return sendRes(status.HTTP_200_OK, data=serializer.data)
+        except User.DoesNotExist:
+            return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
+
+    def put(self, request):
+        try:
+            user = User.objects.get(id=request.user.id, is_active=True)
+            serializer = UserSerializer(user)
+            serializer.update(user, request.data)
+            return sendRes(status.HTTP_200_OK, data=serializer.data, msg="Modification enregistrée")
+        except User.DoesNotExist:
+            return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
