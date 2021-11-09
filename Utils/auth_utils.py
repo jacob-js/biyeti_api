@@ -21,7 +21,7 @@ class VerifyToken(permissions.BasePermission):
             else:
                 try:
                     payload = jwt.decode(token, private_key, algorithms=['HS256'])
-                    user = User.objects.get(id=payload.get('user_id'))
+                    user = User.objects.get(id=payload.get('user_id'), is_active=True)
                     if user is None:
                         return False
                     request.user = user
@@ -30,3 +30,9 @@ class VerifyToken(permissions.BasePermission):
                     return False
         except:
             return False
+
+class VerifyAdmin(permissions.BasePermission):
+    message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
+
+    def has_permission(self, request, view):
+        return request.user.is_superuser
