@@ -6,6 +6,13 @@ class PlaceSerialzer(serializers.ModelSerializer):
         model = models.Place
         fields = '__all__'
 
+    
+    def update(self, instance, validated_data):
+        instance.name =  validated_data.get('name', instance.name)
+        instance.number = validated_data.get('number', instance.number)
+        instance.save()
+        return instance
+
 class TicketSerializer(serializers.ModelSerializer):
     place = serializers.DictField(source='place.item')
     class Meta:
