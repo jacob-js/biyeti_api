@@ -27,6 +27,15 @@ class Ticket(models.Model):
 
     def __str__(self):
         return '{} {}{}'.format(self.place.name, self.price, self.currency)
+
+    def item(self) -> dict:
+        return {
+            'id': self.id,
+            'place': self.place.name,
+            'price': self.price,
+            'currency': self.currency,
+            'event_date': self.event_date
+        }
     
     class Meta:
         unique_together = (('place', 'event_date'))
@@ -37,9 +46,10 @@ class Purchase(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='user')
     purchased_at = models.DateTimeField(auto_now_add=True)
     interval = models.IntegerField(default=0)
+    available = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('ticket', 'user', 'interval'))
+        unique_together = (('ticket', 'user', 'interval', 'available'))
 
     def __str__(self):
         return '{} {} {}'.format(self.ticket.place.name, self.ticket.price, self.ticket.currency)

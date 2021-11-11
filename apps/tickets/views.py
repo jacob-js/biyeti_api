@@ -1,10 +1,10 @@
+import datetime
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from Utils.auth_utils import VerifyAdmin, VerifyToken
-
 from Utils.helpers import sendRes
-
-from .serialzers import PlaceSerialzer, TicketPostSerialzer, TicketSerializer
-from .models import Place, Ticket
+from .serialzers import PlaceSerialzer, PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
+from .models import Place, Purchase, Ticket
 
 # Create your views here.
 class TicketsView(APIView):
@@ -94,3 +94,36 @@ class PlaceDetailView(APIView):
             return sendRes(status=204, msg="Place supprimée")
         except:
             return sendRes(404, "Place non trouvée")
+
+
+@api_view(['GET'])
+@permission_classes([VerifyToken, VerifyAdmin])
+def getPurchasesList(request):
+    purchases = Purchase.objects.all().order_by('-purchased_at')
+    serialzer = PurchaseSerializer(purchases, many=True)
+
+    return sendRes(status=200, data=serialzer.data)
+
+@api_view(['POST'])
+@permission_classes([VerifyToken])
+def createPurchase(request):
+    try:
+        ticket = Ticket.objects.get(id=request.data.get('ticket'))
+        interval = (ticket.event_date + datetime.timedelta(hours=6)).timestamp()
+        data = { **request.data, 'user': request.user.id, 'interval': interval }
+    except:
+        return sendRes(status=404, error="Billet incorrect")
+    serialzer = PurchasePostSerialzer(data=data)
+    serialzer.is_valid(raise_exception=True)
+    serialzer.save()
+    return sendRes(status=201, msg="Achat effectué", data=serialzer.data)
+
+@api_view(['GET'])
+@permission_classes([VerifyToken])
+def get_user_tickets(request, user_id):
+    try:
+        purchases = Purchase.objects.filter(user=user_id).order_by('-purchased_at')
+        serialzer = PurchaseSerializer(purchases, many=True)
+        return sendRes(200, data=serialzer.data)
+    except:
+        return sendRes(500, "Quelque chose s'est mal passée")

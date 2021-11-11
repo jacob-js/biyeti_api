@@ -1,5 +1,7 @@
+from apps.users.serializers import UserSerializer
 from . import models
 from rest_framework import serializers
+import datetime
 
 class PlaceSerialzer(serializers.ModelSerializer):
     class Meta:
@@ -34,3 +36,15 @@ class TicketPostSerialzer(serializers.ModelSerializer):
             instance.save()
         except Exception as e:
             raise serializers.ValidationError({ 'error': e.__str__() })
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    ticket = serializers.DictField(source='ticket.item')
+    user = UserSerializer()
+    class Meta:
+        model = models.Purchase
+        fields = '__all__'
+
+class PurchasePostSerialzer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Purchase
+        fields = '__all__'
