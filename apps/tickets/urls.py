@@ -8,5 +8,6 @@ urlpatterns = [
     path('places/<int:id>', views.PlaceDetailView.as_view()),
     path('purchases', views.getPurchasesList),
     path('buy', views.createPurchase),
-    path('user/<uuid:user_id>', views.get_user_tickets)
+    path('user/<uuid:user_id>', views.get_user_tickets),
+    path('status/<uuid:id>', views.check_ticket_status)
 ]

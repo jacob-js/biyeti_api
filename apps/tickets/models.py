@@ -45,7 +45,7 @@ class Purchase(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticket')
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='user')
     purchased_at = models.DateTimeField(auto_now_add=True)
-    interval = models.IntegerField(default=0)
+    interval = models.FloatField(default=0)
     available = models.BooleanField(default=True)
 
     class Meta:

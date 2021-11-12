@@ -6,8 +6,8 @@ from rest_framework import permissions
 def create_token(user_id):
     return jwt.encode({
         'user_id': user_id, 
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
-        'iat': datetime.datetime.utcnow()
+        'exp': datetime.datetime.now() + datetime.timedelta(days=7),
+        'iat': datetime.datetime.now()
     }, private_key )
 
 class VerifyToken(permissions.BasePermission):
