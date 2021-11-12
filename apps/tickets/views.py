@@ -141,6 +141,10 @@ def check_ticket_status(request, id):
             ticket.available=False
             ticket.save()
             return sendRes(403, "La validité du ticket a expiré", data=serializer.data)
+        if ticket.availability != True:
+            return sendRes(403, "Le ticket n'est plus valide", data=serializer.data)
+        ticket.availability = False
+        ticket.save()
         return sendRes(200, data=serializer.data)
     except Exception as e:
         print(e)
