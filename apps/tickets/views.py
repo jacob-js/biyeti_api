@@ -1,7 +1,7 @@
 import datetime
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
-from Utils.auth_utils import VerifyAdmin, VerifyToken
+from Utils.auth_utils import VerifyAdmin, VerifyToken, checkIsAgent
 from Utils.helpers import sendRes
 from .serialzers import PlaceSerialzer, PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
 from .models import Place, Purchase, Ticket
@@ -131,7 +131,7 @@ def get_user_tickets(request, user_id):
         return sendRes(500, "Quelque chose s'est mal passée")
 
 @api_view(['GET'])
-@permission_classes([VerifyToken])
+@permission_classes([VerifyToken, checkIsAgent])
 def check_ticket_status(request, id):
     try:
         ticket = Purchase.objects.get(id=id)
@@ -146,6 +146,5 @@ def check_ticket_status(request, id):
         ticket.availability = False
         ticket.save()
         return sendRes(200, data=serializer.data)
-    except Exception as e:
-        print(e)
+    except:
         return sendRes(404, "Ticket introuvable")
