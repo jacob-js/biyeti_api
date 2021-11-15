@@ -14,7 +14,7 @@ class AgentsView(APIView):
     permission_classes = [ VerifyToken, VerifyAdmin ]
     
     def get(self, request):
-        agents = Agent.objects.all()
+        agents = Agent.objects.all().order_by('-id')
         paginator = Pagination()
         results = paginator.paginate_queryset(agents, request)
         serialzer = AgentSerializer(results, many=True)
@@ -34,3 +34,22 @@ class AgentsView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return sendRes(201, msg="Nouvel agent ajouté", data=serializer.data)
+
+class AgentDetailView(APIView):
+    permission_classes = [VerifyToken, VerifyAdmin]
+
+    def get(self, request, id):
+        try:
+            agent = Agent.objects.get(id=id)
+        except:
+            return sendRes(404, "Agent introuvable")
+        serialzer = AgentSerializer(agent)
+        return sendRes(200, data=serialzer.data)
+
+    def delete(self, request, id):
+        try:
+            agent = Agent.objects.get(id=id)
+        except:
+            return sendRes(404, "Agent introuvable")
+        agent.delete()
+        return sendRes(200, msg="Agent supprimé")
