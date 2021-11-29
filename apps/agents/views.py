@@ -8,6 +8,7 @@ from apps.users.serializers import UserSerializer
 from .serializers import AgentSerializer
 from .models import Agent
 import datetime
+from random import randint
 
 # Create your views here.
 class AgentsView(APIView):
@@ -21,7 +22,7 @@ class AgentsView(APIView):
         return paginator.get_paginated_response(serialzer.data)
 
     def post(self, request):
-        random = str(int(datetime.datetime.now().timestamp()))[6:]
+        random = str(randint(100000, 1000000))
         try:
             pwd = random+request.data.get('firstname').lower()
         except:
