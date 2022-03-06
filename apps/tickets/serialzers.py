@@ -3,20 +3,18 @@ from . import models
 from rest_framework import serializers
 import datetime
 
-class PlaceSerialzer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
     class Meta:
-        model = models.Place
+        model = models.Event
         fields = '__all__'
 
-    
-    def update(self, instance, validated_data):
-        instance.name =  validated_data.get('name', instance.name)
-        instance.number = validated_data.get('number', instance.number)
-        instance.save()
-        return instance
+class EventPostSerialzer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Event
+        fields = '__all__'
 
 class TicketSerializer(serializers.ModelSerializer):
-    place = serializers.DictField(source='place.item')
     class Meta:
         model = models.Ticket
         fields = '__all__'
@@ -29,7 +27,7 @@ class TicketPostSerialzer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         try:
-            instance.place_id = validated_data.get('place', instance.place_id)
+            instance.name = validated_data.get('name', instance.name)
             instance.price = validated_data.get('price', instance.price)
             instance.currency = validated_data.get('currency', instance.currency)
             instance.event_date = validated_data.get('event_date', instance.event_date)

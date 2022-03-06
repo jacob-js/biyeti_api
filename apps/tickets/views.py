@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from Utils.auth_utils import VerifyAdmin, VerifyToken, checkIsAgent
 from Utils.helpers import sendRes
-from .serialzers import PlaceSerialzer, PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
-from .models import Place, Purchase, Ticket
+from .serialzers import PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
+from .models import Purchase, Ticket
 
 # Create your views here.
 class TicketsView(APIView):
@@ -52,48 +52,6 @@ class TicketDetail(APIView):
             return sendRes(status=204, msg="Billet supprimé")
         except Ticket.DoesNotExist:
             return sendRes(status=404, error='Ticket not found')
-
-class PlacesView(APIView):
-    permission_classes = [VerifyToken]
-
-    def get(self, request):
-        places = Place.objects.all()
-        serialzer = PlaceSerialzer(places, many=True)
-        return sendRes(200, None, data=serialzer.data)
-
-    def post(self, request):
-        serialzer = PlaceSerialzer(data=request.data)
-        serialzer.is_valid(raise_exception=True)
-        serialzer.save()
-        return sendRes(201, msg='Place ajoutée', data=serialzer.data)
-
-class PlaceDetailView(APIView):
-    permission_classes = [VerifyToken]
-
-    def get(self, request, id):
-        try:
-            place = Place.objects.get(id=id)
-            serialzer = PlaceSerialzer(place)
-            return sendRes(status=200, data=serialzer.data)
-        except:
-            return sendRes(404, "Place non trouvée")
-
-    def put(self, request, id):
-        try:
-            place = Place.objects.get(id=id)
-            serialzer = PlaceSerialzer(place)
-            serialzer.update(place, request.data)
-            return sendRes(status=200, data=serialzer.data)
-        except:
-            return sendRes(404, "Place non trouvée")
-
-    def delete(self, request, id):
-        try:
-            place = Place.objects.get(id=id)
-            place.delete()
-            return sendRes(status=204, msg="Place supprimée")
-        except:
-            return sendRes(404, "Place non trouvée")
 
 
 @api_view(['GET'])
