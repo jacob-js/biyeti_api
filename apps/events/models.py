@@ -17,7 +17,10 @@ class Event(models.Model):
     cover = models.CharField(max_length=255)
     event_date = models.DateTimeField(null=False)
     description = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category', default=1)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
+    location = models.CharField(max_length=255)
+    long = models.FloatField(null=True)
+    lat = models.FloatField(null=True)
 
     def __str__(self) -> str:
         return self.name
