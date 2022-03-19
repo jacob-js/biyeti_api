@@ -1,1 +1,1 @@
-web: gunicorn ticket_backend.globals.wsgi --log-file -
+web: gunicorn globals.wsgi --log-file -
