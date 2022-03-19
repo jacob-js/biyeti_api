@@ -18,7 +18,7 @@ from corsheaders.defaults import default_headers
 
 
 # Activate Django-Heroku.
-django_heroku.settings(staticfiles=False, **locals())
+django_heroku.settings(locals(), staticfiles=False)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
