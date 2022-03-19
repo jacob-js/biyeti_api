@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-)6^ayc9&e%(5h4i%7xx2gl+)b%2k8^mh%(e1b5^-f$pzkje%!+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://bookitbackend.herokuapp.com/']
+ALLOWED_HOSTS = ['bookitbackend.herokuapp.com']
 
 
 # Application definition
