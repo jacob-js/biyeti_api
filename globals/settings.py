@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from .config import db_name, db_user, db_pass, db_host, db_port
 import Utils.imageUploader
 import django_heroku
 import dj_database_url
@@ -100,12 +99,7 @@ WSGI_APPLICATION = 'globals.wsgi.application'
 prod_db = dj_database_url.config(conn_max_age=600)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': db_name,
-        'USER': db_user,
-        'HOST': db_host,
-        'PORT': db_port,
-        'PASSWORD': db_pass
+        'ENGINE': 'django.db.backends.postgresql'
     }
 }
 
