@@ -32,6 +32,30 @@ class VerifyToken(permissions.BasePermission):
         except:
             return False
 
+class CanUserChangeEntrys(permissions.BasePermission):
+    message = {'error': "Erreur d'authentification"}
+    
+    def has_permission(self, request, view):
+        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+            try:
+                token = request.headers['authtoken']
+                if not token:
+                    return False
+                else:
+                    try:
+                        payload = jwt.decode(token, private_key, algorithms=['HS256'])
+                        user = User.objects.get(id=payload.get('user_id'), is_active=True)
+                        if user is None:
+                            return False
+                        request.user = user
+                        return True
+                    except:
+                        return False
+            except:
+                return False
+        else:
+            return True
+
 class VerifyAdmin(permissions.BasePermission):
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
