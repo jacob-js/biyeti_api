@@ -26,14 +26,15 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = User.objects.filter(Q(email=request.data['identifier'] | Q(phone_number=request.data['identifier'])), is_active=True).first()
+            user = User.objects.filter(Q(email=request.data['identifier']) | Q(phone_number=request.data['identifier'])).first()
             if user is not None:
                 if user.check_password(request.data['password']):
                     ser = UserSerializer(user)
                     token = create_token(ser.data.get('id'))
                     return sendRes(status.HTTP_200_OK, data={'token': token, 'user': ser.data})
             return sendRes(status.HTTP_401_UNAUTHORIZED, "Email ou mot de passe incorrect")
-        except:
+        except Exception as e:
+            print(e.__str__())
             return sendRes(status.HTTP_401_UNAUTHORIZED, "Email ou mot de passe incorrect")
 
 class GoogleLoginView(APIView):
