@@ -3,7 +3,7 @@ import environ
 environ.Env.read_env()
 env = environ.Env()
 
-is_dev_server = env('environment') == 'development'
+environment = env('environment')
 
 db_name = env('DB_NAME')
 db_user = env('DB_USER')

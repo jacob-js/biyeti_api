@@ -98,8 +98,10 @@ WSGI_APPLICATION = 'globals.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 prod_db = dj_database_url.config(conn_max_age=600)
-DATABASES = { 'default': {} }
-if config.is_dev_server:
+DATABASES = { 'default': {
+    'ENGINE': 'django.db.backends.postgresql'
+} }
+if config.environment == 'development':
     DATABASES['default'].update({
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': config.db_name,
