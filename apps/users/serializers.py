@@ -22,12 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         pwd = attrs.get('password')
-        if len(pwd) < 6:
-            raise serializers.ValidationError({ 'password': 'le mot de passe doit contenir au moins 6 caracteres' })
-        if not re.findall('[a-zA-Z]', pwd):
-            raise serializers.ValidationError({ 'password': 'Le mot de passe doit comporter au moins une lettre' })
-        if not re.findall('[0-9]', pwd):
-            raise serializers.ValidationError({ 'password': 'Le mot de passe doit comporter au moins un chiffre' })
+        if len(pwd) != 4:
+            raise serializers.ValidationError({ 'password': 'le mot de passe doit contenir 4 caracteres' })
+        if not re.fullmatch('[0-9]', pwd):
+            raise serializers.ValidationError({ 'password': 'Le mot de passe doit contenir que des chiffres' })
 
         return attrs
 

@@ -3,6 +3,14 @@ import environ
 environ.Env.read_env()
 env = environ.Env()
 
+is_dev_server = env('environment') == 'development'
+
+db_name = env('DB_NAME')
+db_user = env('DB_USER')
+db_password = env('DB_PASSWORD')
+db_host = env('DB_HOST')
+db_port = env('DB_PORT')
+
 private_key= env('PRIVATE_KEY')
 g_client_id = env('GOOGLE_CLIENT_ID')
 g_client_secret = env('GOOGLE_CLIENT_SECRET')

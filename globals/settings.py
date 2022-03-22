@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import Utils.imageUploader
+from . import config
 import django_heroku
 import dj_database_url
 from corsheaders.defaults import default_headers
@@ -33,7 +34,7 @@ SECRET_KEY = 'django-insecure-)6^ayc9&e%(5h4i%7xx2gl+)b%2k8^mh%(e1b5^-f$pzkje%!+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bookitbackend.herokuapp.com']
+ALLOWED_HOSTS = ['bookitbackend.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -97,13 +98,18 @@ WSGI_APPLICATION = 'globals.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 prod_db = dj_database_url.config(conn_max_age=600)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql'
-    }
-}
-
-DATABASES['default'].update(prod_db)
+DATABASES = { 'default': {} }
+if config.is_dev_server:
+    DATABASES['default'].update({
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config.db_name,
+            'USER': config.db_user,
+            'PASSWORD': config.db_password,
+            'HOST': config.db_host,
+            'PORT': config.db_port
+        })
+else:
+    DATABASES['default'].update(prod_db)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
