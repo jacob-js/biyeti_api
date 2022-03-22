@@ -26,7 +26,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = User.objects.filter(Q(email=request.data['email'] | Q(phone_number=request.data['email'])), is_active=True).first()
+            user = User.objects.filter(Q(email=request.data['identifier'] | Q(phone_number=request.data['identifier'])), is_active=True).first()
             if user is not None:
                 if user.check_password(request.data['password']):
                     ser = UserSerializer(user)
