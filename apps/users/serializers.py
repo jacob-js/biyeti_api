@@ -54,7 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.CharField()
     password = serializers.CharField()
 
 class GoogleAuthSerializer(serializers.Serializer):
