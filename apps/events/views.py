@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view, permission_classes
 from Utils.auth_utils import CanUserChangeEntrys
 from Utils.helpers import sendRes
 
@@ -12,7 +11,6 @@ from .models import Event, Category
 # Create your views here.
 @api_view(['GET', 'POST'])
 @permission_classes([CanUserChangeEntrys])
-@parser_classes([MultiPartParser])
 def events_view(request):
     if request.method == 'GET':
         category_id = request.query_params.get('category_id')
@@ -27,7 +25,7 @@ def events_view(request):
         return paginator.get_paginated_response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = EventSerializer(data={**request.data, 'user': request.user.id})
+        serializer = EventSerializer(data={**request.data.copy(), 'user': request.user.id})
         if serializer.is_valid():
             serializer.save()
             return sendRes(status=201, data=serializer.data, msg="Evénement enregistré")

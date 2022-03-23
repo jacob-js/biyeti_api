@@ -4,8 +4,8 @@ from .models import Event, Category
 import cloudinary.uploader;
 
 class EventSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(max_length=None, use_url=True, allow_empty_file=True, required=True, write_only=True)
-    cover = serializers.CharField(max_length=None, required=False, read_only=True)
+    # image = serializers.ImageField(max_length=None, use_url=True, allow_empty_file=True, required=True, write_only=True)
+    # cover = serializers.CharField(max_length=None, required=False, read_only=True)
     class Meta:
         model = Event
         fields = '__all__'
