@@ -62,6 +62,16 @@ class VerifyAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_superuser
 
+class isAdminEditingData(permissions.BasePermission):
+    message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
+    
+    def has_permission(self, request, view):
+        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+            return request.user.is_superuser
+        else:
+            return True
+
+
 class checkIsAgent(permissions.BasePermission):
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 

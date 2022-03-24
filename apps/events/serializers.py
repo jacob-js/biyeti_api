@@ -18,3 +18,8 @@ class EventSerializer(serializers.ModelSerializer):
         event = Event(**validated_data)
         event.save()
         return event
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'

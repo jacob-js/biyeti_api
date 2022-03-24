@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from Utils.auth_utils import CanUserChangeEntrys
+from Utils.auth_utils import CanUserChangeEntrys, isAdminEditingData
 from Utils.helpers import sendRes
 
 from Utils.pagination import Pagination
 
-from .serializers import EventSerializer
+from .serializers import CategorySerializer, EventSerializer
 from .models import Event, Category
 
 # Create your views here.
@@ -55,3 +55,18 @@ def event_view(request, event_id):
     elif request.method == 'DELETE':
         event.delete()
         return sendRes(status=204, msg="Evénement supprimé")
+
+@api_view(['GET', 'POST'])
+@parser_classes([JSONParser, MultiPartParser, FormParser])
+@permission_classes([CanUserChangeEntrys, isAdminEditingData])
+def categorys_view(request):
+    if(request.method == 'GET'):
+        categorys = Category.objects.all()
+        serializer = CategorySerializer(categorys, many=True)
+        return sendRes(status=200, data=serializer.data)
+    elif(request.method == 'POST'):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return sendRes(status=201, data=serializer.data, msg="Catégorie enregistrée")
+        return sendRes(status=400, error=serializer.errors)

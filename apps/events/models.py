@@ -4,7 +4,7 @@ import uuid
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    cover = models.CharField(max_length=255)
+    cover = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self) -> str:
         return self.name
