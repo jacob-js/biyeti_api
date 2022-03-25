@@ -1,6 +1,7 @@
 from venv import create
 from rest_framework import serializers;
 from .models import Event, Category
+from apps.agents.models import Agent;
 import cloudinary.uploader;
 
 class EventSerializer(serializers.ModelSerializer):
@@ -11,12 +12,14 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
     def create(self, validated_data):
+        user = self.context['request'].user
         image = validated_data.pop('image')
         res = cloudinary.uploader.upload(image)
         cover = res['url']
         validated_data.setdefault('cover', cover)
         event = Event(**validated_data)
         event.save()
+        Agent.objects.create(user=user.id, event=event.id, role='admin')
         return event
 
 class CategorySerializer(serializers.ModelSerializer):

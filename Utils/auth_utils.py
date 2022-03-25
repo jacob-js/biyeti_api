@@ -62,6 +62,7 @@ class VerifyAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_superuser
 
+
 class isAdminEditingData(permissions.BasePermission):
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
     
@@ -77,8 +78,39 @@ class checkIsAgent(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            agent = Agent.objects.get(id=request.user.id)
+            event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
+            agent = Agent.objects.get(user=request.user.id, event=event_id)
             request.agent = agent
             return True
         except:
-            return request.user.is_superuser
+            return False
+
+class checkIsAgentEditingData(permissions.BasePermission):
+    message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
+
+    def has_permission(self, request, view):
+        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+            try:
+                event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
+                agent = Agent.objects.get(user=request.user.id, event=event_id)
+                request.agent = agent
+                return True
+            except:
+                return False
+        else:
+            return True
+
+class CheckIsEventAdmin(permissions.BasePermission):
+    message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
+
+    def has_permission(self, request, view):
+        return request.agent.role == 'admin'
+
+class CheckIsEventAdminEditingData(permissions.BasePermission):
+    message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
+
+    def has_permission(self, request, view):
+        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+            return request.agent.role == 'admin'
+        else:
+            return True

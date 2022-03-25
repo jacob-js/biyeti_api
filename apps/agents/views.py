@@ -12,10 +12,18 @@ from random import randint
 
 # Create your views here.
 class AgentsView(APIView):
-    permission_classes = [ VerifyToken, VerifyAdmin ]
+    permission_classes = [ VerifyToken ]
     
     def get(self, request):
-        agents = Agent.objects.all().order_by('-id')
+        user_id = request.query_params.get('user_id')
+        event_id = request.query_params.get('event_id')
+        agents = []
+        if user_id:
+            agents = Agent.objects.filter(user=user_id)
+        elif event_id:
+            agents = Agent.objects.filter(event=event_id)
+        else:
+            agents = Agent.objects.all().order_by('-id')
         paginator = Pagination()
         results = paginator.paginate_queryset(agents, request)
         serialzer = AgentSerializer(results, many=True)

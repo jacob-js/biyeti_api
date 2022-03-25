@@ -1,27 +1,33 @@
 import datetime
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
-from Utils.auth_utils import VerifyAdmin, VerifyToken, checkIsAgent
+from Utils.auth_utils import CheckIsEventAdmin, CheckIsEventAdminEditingData, VerifyAdmin, VerifyToken, checkIsAgent, checkIsAgentEditingData
 from Utils.helpers import sendRes
 from .serialzers import PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
 from .models import Purchase, Ticket
 
 # Create your views here.
-class TicketsView(APIView):
-    permission_classes = [VerifyToken, VerifyAdmin]
-    serializer_class = TicketSerializer
-    queryset = Ticket.objects.all()
-
-    def get(self, request):
-        serializer = self.serializer_class(self.queryset.all().order_by('event_date'), many=True)
+@api_view(['GET'])
+def get_event_tickets_view(request, event_id):
+    try:
+        tickets = Ticket.objects.filter(event=event_id)
+        serializer = TicketSerializer(tickets, many=True)
         return sendRes(status=200, data=serializer.data)
+    except:
+        return sendRes(None, False, 'Event not found')
 
-    def post(self, request):
+@api_view(['POST'])
+@permission_classes([VerifyToken, checkIsAgent, CheckIsEventAdmin])
+def create_event_ticket(request):
+    try:
         serializer = TicketPostSerialzer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return sendRes(status=201, data=serializer.data, msg="Ticket enregistré")
-        return sendRes(status=400, error=serializer.errors)
+            return sendRes(status=201, data=serializer.data)
+        else:
+            return sendRes(status=400, error=serializer.errors)
+    except:
+        return sendRes(None, False, 'Event not found')
 
 class TicketDetail(APIView):
     permission_classes = [VerifyToken]
