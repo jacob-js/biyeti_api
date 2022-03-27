@@ -18,7 +18,7 @@ class EventSerializer(serializers.ModelSerializer):
         validated_data.setdefault('cover', cover)
         event = Event(**validated_data)
         event.save()
-        Agent.objects.create(user=validated_data.get('user'), event=event.id, role='admin')
+        Agent.objects.create(user=validated_data.get('user'), event=event, role='admin')
         return event
 
 class CategorySerializer(serializers.ModelSerializer):
