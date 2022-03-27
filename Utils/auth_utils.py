@@ -77,12 +77,12 @@ class checkIsAgent(permissions.BasePermission):
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
+        event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
         try:
-            event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
             agent = Agent.objects.get(user=request.user.id, event=event_id)
             request.agent = agent
             return True
-        except:
+        except Exception as e:
             return False
 
 class checkIsAgentEditingData(permissions.BasePermission):

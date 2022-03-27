@@ -12,14 +12,13 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
     def create(self, validated_data):
-        user = self.context['request'].user
         image = validated_data.pop('image')
         res = cloudinary.uploader.upload(image)
         cover = res['url']
         validated_data.setdefault('cover', cover)
         event = Event(**validated_data)
         event.save()
-        Agent.objects.create(user=user.id, event=event.id, role='admin')
+        Agent.objects.create(user=validated_data.get('user'), event=event.id, role='admin')
         return event
 
 class CategorySerializer(serializers.ModelSerializer):
