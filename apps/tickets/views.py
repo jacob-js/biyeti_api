@@ -73,14 +73,15 @@ def getPurchasesList(request):
 def createPurchase(request):
     try:
         ticket = Ticket.objects.get(id=request.data.get('ticket'))
-        interval = (ticket.event_date + datetime.timedelta(hours=5)).timestamp()
+        interval = (ticket.event.event_date + datetime.timedelta(hours=5)).timestamp()
         data = { **request.data, 'user': request.user.id, 'interval': interval }
     except:
         return sendRes(status=404, error="Billet incorrect")
     serialzer = PurchasePostSerialzer(data=data)
     serialzer.is_valid(raise_exception=True)
-    ticket.place.number = ticket.place.number -1
-    ticket.place.save()
+    if ticket.number_of_place:
+        ticket.number_of_place = ticket.number_of_place -1
+        ticket.save()
     serialzer.save()
     return sendRes(status=201, msg="Achat effectué", data=serialzer.data)
 
