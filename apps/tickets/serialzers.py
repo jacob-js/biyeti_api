@@ -46,3 +46,15 @@ class PurchasePostSerialzer(serializers.ModelSerializer):
     class Meta:
         model = models.Purchase
         fields = '__all__'
+
+    def validate(self, attrs):
+        ticket = attrs.get('ticket')
+        user = attrs.get('user')
+        interval = attrs.get('interval')
+
+        try:
+            ticket = models.Purchase.objects.get(ticket=ticket, user=user, interval=interval, available=True)
+            if ticket:
+                raise serializers.ValidationError({ 'error': 'Vous avez déjà réservé ce billet'})
+        except models.Ticket.DoesNotExist:
+            return attrs

@@ -35,8 +35,8 @@ class Purchase(models.Model):
     interval = models.FloatField(default=0)
     available = models.BooleanField(default=True)
 
-    class Meta:
-        unique_together = (('ticket', 'user', 'interval', 'available'))
+    # class Meta:
+    #     unique_together = (('ticket', 'user', 'interval', 'available'))
 
     def __str__(self):
         return '{} {} {}'.format(self.ticket.place.name, self.ticket.price, self.ticket.currency)
