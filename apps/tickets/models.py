@@ -21,7 +21,9 @@ class Ticket(models.Model):
             'event': self.event.item(),
             'name': self.name,
             'price': self.price,
-            'currency': self.currency
+            'currency': self.currency,
+            'number_of_place': self.number_of_place,
+            'caption': self.caption
         }
     
     class Meta:
