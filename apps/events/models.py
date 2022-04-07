@@ -24,3 +24,18 @@ class Event(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def item(self) -> dict:
+        return {
+            'id': self.id,
+            'created_at': self.created_at,
+            'user': self.user.id,
+            'name': self.name,
+            'cover': self.cover,
+            'event_date': self.event_date,
+            'description': self.description,
+            'category': self.category.id,
+            'location': self.location,
+            'long': self.long,
+            'lat': self.lat
+        }

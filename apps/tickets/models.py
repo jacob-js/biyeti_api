@@ -18,7 +18,7 @@ class Ticket(models.Model):
     def item(self) -> dict:
         return {
             'id': self.id,
-            'event': self.event,
+            'event': self.event.item(),
             'name': self.name,
             'price': self.price,
             'currency': self.currency
