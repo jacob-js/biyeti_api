@@ -56,5 +56,5 @@ class PurchasePostSerialzer(serializers.ModelSerializer):
             ticket = models.Purchase.objects.get(ticket=ticket, user=user, interval=interval, available=True)
             if ticket:
                 raise serializers.ValidationError({ 'error': 'Vous avez déjà réservé ce billet'})
-        except models.Ticket.DoesNotExist:
+        except models.Purchase.DoesNotExist:
             return attrs
