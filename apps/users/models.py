@@ -40,8 +40,8 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     auth_provider = models.CharField(max_length=255, default='pwd')
     phone_number = models.CharField(max_length=255, null=True, unique=True)
-    avatar = models.CharField(max_length=255, null=True)
-    city = models.CharField(max_length=255, null=True)
+    # avatar = models.CharField(max_length=255, null=True)
+    # city = models.CharField(max_length=255, null=True)
     username = None
 
     REQUIRED_FIELDS = []
