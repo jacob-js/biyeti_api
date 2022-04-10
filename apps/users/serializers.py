@@ -7,13 +7,18 @@ from Utils.oauth import Google
 from .models import User
 from globals import config
 from django.db.models import Q
+import cloudinary.uploader
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all(), message="cet email existe déjà")])
-    date_of_birth = serializers.DateField(required=True)
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.filter(is_active=True), message="Cet email existe déjà")]
+    )
+    phone_number= serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.filter(is_active=True), message="Ce numéro de téléphone existe déjà")]
+    )
     class Meta:
         model = User
-        fields = ['id', 'email', 'firstname', 'lastname', 'date_of_birth', 'gender', 'created_at', 'password', 'auth_provider', 'phone_number']
+        fields = '__all__'
         extra_kwargs = {
             'password': { 'write_only': True },
             'created_at': { 'read_only': True },
@@ -41,15 +46,35 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             user = User.objects.get(~Q(id=instance.id), email=validated_data.get('email'))
             if user:
-                raise serializers.ValidationError({ 'email': 'cet email existe déjà' })
+                raise serializers.ValidationError({ 'email': 'Cet email existe déjà' })
         except User.DoesNotExist:
             instance.email = validated_data.get('email', instance.email)
+        try:
+            user = User.objects.get(~Q(id=instance.id), phone_number=validated_data.get('phone_number'))
+            if user:
+                raise serializers.ValidationError({ 'email': 'Ce numéro de téléphone existe déjà' })
+        except User.DoesNotExist:
+            instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        except:
+            # if no phone number, do nothing
+            pass
+
+        # try processing avatar
+        try:
+            avatar = validated_data.pop('avatar', None)
+            if avatar:
+                res = cloudinary.uploader.upload(avatar)
+                instance.avatar = res['url']
+        except KeyError:
+            # if no avatar, do nothing
+            pass
         instance.firstname = validated_data.get('firstname', instance.firstname)
         instance.lastname = validated_data.get('lastname', instance.lastname)
         instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
         instance.gender = validated_data.get('gender', instance.gender)
         instance.auth_provider = validated_data.get('gender', instance.auth_provider)
         instance.phone_number = validated_data.get('gender', instance.phone_number)
+        instance.city = validated_data.get('city', instance.city)
         instance.save()
         return instance
 

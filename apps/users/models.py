@@ -39,7 +39,9 @@ class User(AbstractUser):
     date_of_birth = models.DateField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     auth_provider = models.CharField(max_length=255, default='pwd')
-    phone_number = models.CharField(max_length=255, null=True)
+    phone_number = models.CharField(max_length=255, null=True, unique=True)
+    avatar = models.CharField(max_length=255, null=True)
+    city = models.CharField(max_length=255, null=True)
     username = None
 
     REQUIRED_FIELDS = []
@@ -49,5 +51,6 @@ class User(AbstractUser):
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['email'], condition=Q(is_active=True), name='email déjà utilisé')
+            UniqueConstraint(fields=['email'], condition=Q(is_active=True), name='Email déjà utilisé'),
+            UniqueConstraint(fields=['phone_number'], condition=Q(is_active=True), name='Numéro de téléphone déjà utilisé')
         ]
