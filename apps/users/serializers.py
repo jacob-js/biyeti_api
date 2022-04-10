@@ -73,7 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
         instance.gender = validated_data.get('gender', instance.gender)
         instance.auth_provider = validated_data.get('gender', instance.auth_provider)
-        instance.phone_number = validated_data.get('gender', instance.phone_number)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         instance.city = validated_data.get('city', instance.city)
         instance.save()
         return instance
