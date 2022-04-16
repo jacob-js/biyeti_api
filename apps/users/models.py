@@ -39,7 +39,7 @@ class User(AbstractUser):
     date_of_birth = models.DateField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     auth_provider = models.CharField(max_length=255, default='pwd')
-    phone_number = models.CharField(max_length=255, null=True, unique=True)
+    phone_number = models.CharField(max_length=255, null=False, unique=True)
     avatar = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255, null=True)
     username = None

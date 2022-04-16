@@ -1,14 +1,16 @@
 import datetime
 import email
+from random import randint
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import permission_classes
-from Utils.auth_utils import VerifyAdmin, VerifyToken, create_token
+from Utils.auth_utils import VerifyAdmin, VerifyToken, create_reset_pwd_token, create_token
 
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
+from Utils.sms import send_sms
 from .models import User
 from .serializers import GoogleAuthSerializer, LoginSerializer, UserSerializer
 
@@ -115,3 +117,14 @@ class ProfileView(APIView):
             return sendRes(status.HTTP_200_OK, data=serializer.data, msg="Modification enregistrée")
         except User.DoesNotExist:
             return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
+
+class PasswordResetView(APIView):
+
+    def get(self, request, phone):
+        code = randint(1000, 10000)
+        try:
+            send_sms(phone, 'Votre code de confirmation est: {}'.format(code))
+            token = create_reset_pwd_token(code)
+            return sendRes(200, data={'token': token}, msg='Code de confirmation envoyé')
+        except Exception as e:
+            return sendRes(500, error=e.__str__())

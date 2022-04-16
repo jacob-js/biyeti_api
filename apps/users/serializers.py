@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
             'auth_provider': { 'read_only': True }
         }
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict):
         pwd = attrs.get('password')
         if len(pwd) != 4:
             raise serializers.ValidationError({ 'password': 'le mot de passe doit contenir 4 caracteres' })
@@ -92,8 +92,6 @@ class GoogleAuthSerializer(serializers.Serializer):
         except:
             print(user_data)
             raise serializers.ValidationError( 'le jeton est invalid' )
-        # if user_data['aud'] != co__nfig.g_client_id:
-        #     raise AuthenticationFailed('Oops, Qui etes vous ?')
         attrs.setdefault('email', user_data['email'])
         attrs.setdefault('firstname', user_data['given_name'])
         attrs.setdefault('lastname', user_data['family_name'])

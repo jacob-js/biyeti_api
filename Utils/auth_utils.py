@@ -11,6 +11,13 @@ def create_token(user_id):
         'iat': datetime.datetime.now()
     }, private_key )
 
+def create_reset_pwd_token(code: int) -> str:
+    return jwt.encode({
+        'code': code, 
+        'exp': datetime.datetime.now() + datetime.timedelta(minutes=30),
+        'iat': datetime.datetime.now()
+    }, private_key )
+
 class VerifyToken(permissions.BasePermission):
     message = {'error': "Erreur d'authentification"}
     
