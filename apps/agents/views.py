@@ -50,15 +50,22 @@ class AgentDetailView(APIView):
     def get(self, request, id):
         try:
             agent = Agent.objects.get(id=id)
-        except:
+        except Agent.DoesNotExist:
             return sendRes(404, "Agent introuvable")
         serialzer = AgentSerializer(agent)
         return sendRes(200, data=serialzer.data)
 
+    def put(self, request, id):
+        try:
+            agent = Agent.objects.get(id=id)
+            AgentSerializer.update(agent, **request.data)
+        except Agent.DoesNotExist:
+            return sendRes(404, "Agent introuvable")
+
     def delete(self, request, id):
         try:
             agent = Agent.objects.get(id=id)
-        except:
+        except Agent.DoesNotExist:
             return sendRes(404, "Agent introuvable")
         agent.delete()
         return sendRes(200, msg="Agent supprimé")
