@@ -30,16 +30,7 @@ class AgentsView(APIView):
         return paginator.get_paginated_response(serialzer.data)
 
     def post(self, request):
-        random = str(randint(100000, 1000000))
-        try:
-            pwd = random+request.data.get('firstname').lower()
-        except:
-            return sendRes(400, { "firstname": ["Ce champ est obligatoire"] })
-        print(pwd)
-        user_serializer = UserSerializer(data={**request.data, 'password': pwd})
-        user_serializer.is_valid(raise_exception=True)
-        user_serializer.save()
-        serializer = AgentSerializer(data={ 'user_id': user_serializer.data.get('id') })
+        serializer = AgentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return sendRes(201, msg="Nouvel agent ajouté", data=serializer.data)

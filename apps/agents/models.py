@@ -8,3 +8,6 @@ class Agent(models.Model):
 
     def __str__(self):
         return '{} - {}'.format(self.user.firstname, self.event.name)
+
+    class Meta:
+        unique_together = (('user', 'event'))
