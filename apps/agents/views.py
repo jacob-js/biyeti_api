@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 
 from Utils.helpers import sendRes
-from Utils.auth_utils import VerifyToken, VerifyAdmin
+from Utils.auth_utils import CheckIsEventAdminEditingData, VerifyToken, VerifyAdmin, checkIsAgentEditingData
 from Utils.pagination import Pagination
 from apps.users.serializers import UserSerializer
 from .serializers import AgentSerializer
@@ -12,7 +12,7 @@ from random import randint
 
 # Create your views here.
 class AgentsView(APIView):
-    permission_classes = [ VerifyToken ]
+    permission_classes = [ VerifyToken, checkIsAgentEditingData, CheckIsEventAdminEditingData ]
     
     def get(self, request):
         user_id = request.query_params.get('user_id')
@@ -36,7 +36,7 @@ class AgentsView(APIView):
         return sendRes(201, msg="Nouvel agent ajouté", data=serializer.data)
 
 class AgentDetailView(APIView):
-    permission_classes = [VerifyToken, VerifyAdmin]
+    permission_classes = [VerifyToken, checkIsAgentEditingData, CheckIsEventAdminEditingData]
 
     def get(self, request, id):
         try:
