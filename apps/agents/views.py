@@ -49,7 +49,9 @@ class AgentDetailView(APIView):
     def put(self, request, id):
         try:
             agent = Agent.objects.get(id=id)
-            AgentSerializer.update(agent, **request.data)
+            serializer = AgentSerializer(agent)
+            serializer.update(validated_data={**request.data})
+            return sendRes(200, msg="Modification enregistrée", data=serializer.data)
         except Agent.DoesNotExist:
             return sendRes(404, "Agent introuvable")
 
