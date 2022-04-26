@@ -68,7 +68,7 @@ def getPurchasesList(request, event_id):
     paginator = Pagination()
     results = paginator.paginate_queryset(purchases, request)
     serialzer = PurchaseSerializer(results, many=True)
-    return sendRes(status=200, data=serialzer.data)
+    return paginator.get_paginated_response(serialzer.data)
 
 @api_view(['POST'])
 @permission_classes([VerifyToken])
