@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from Utils.auth_utils import CheckIsEventAdmin, CheckIsEventAdminEditingData, VerifyAdmin, VerifyToken, checkIsAgent, checkIsAgentEditingData
 from Utils.helpers import sendRes
+from Utils.pagination import Pagination
 from .serialzers import PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
 from .models import Purchase, Ticket
 
@@ -61,11 +62,12 @@ class TicketDetail(APIView):
 
 
 @api_view(['GET'])
-@permission_classes([VerifyToken, VerifyAdmin])
-def getPurchasesList(request):
-    purchases = Purchase.objects.all().order_by('-purchased_at')
-    serialzer = PurchaseSerializer(purchases, many=True)
-
+@permission_classes([VerifyToken])
+def getPurchasesList(request, event_id):
+    purchases = Purchase.objects.filter(ticket__event=event_id).order_by('-purchased_at')
+    paginator = Pagination()
+    results = paginator.paginate_queryset(purchases, request)
+    serialzer = PurchaseSerializer(results, many=True)
     return sendRes(status=200, data=serialzer.data)
 
 @api_view(['POST'])
