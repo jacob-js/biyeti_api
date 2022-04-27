@@ -46,7 +46,7 @@ def event_view(request, event_id):
         return sendRes(status=200, data=serializer.data)
 
     elif request.method == 'PUT':
-        serializer = EventSerializer(event, data=request.data)
+        serializer = EventSerializer(event, data={**request.data, 'user': request.user.id})
         if serializer.is_valid():
             serializer.save()
             return sendRes(status=200, data=serializer.data, msg="Evénement modifié")
