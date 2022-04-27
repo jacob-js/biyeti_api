@@ -115,3 +115,18 @@ def check_ticket_status(request, id):
         return sendRes(200, data=serializer.data)
     except:
         return sendRes(404, "Ticket introuvable")
+
+@api_view(['GET'])
+@permission_classes([VerifyToken, checkIsAgent])
+def get_sum_of_purchases(request):
+    event_id = request.query_params.get('event_id')
+    purchases = []
+    if event_id:
+        purchases = Purchase.objects.filter(ticket__event=event_id)
+    else:
+        purchases = Purchase.objects.all()
+    cdfPurchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'cdf', purchases)
+    usdPurchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'usd', purchases)
+    cdfSum = sum(map(lambda purchase: purchase.ticket.price, cdfPurchases))
+    usdSum = sum(map(lambda purchase: purchase.ticket.price, usdPurchases))
+    return sendRes(200, data={'cdf': cdfSum, 'usd': usdSum})

@@ -41,4 +41,4 @@ class Purchase(models.Model):
     #     unique_together = (('ticket', 'user', 'interval', 'available'))
 
     def __str__(self):
-        return '{} {} {}'.format(self.ticket.place.name, self.ticket.price, self.ticket.currency)
+        return '{} {} {}'.format(self.ticket.name, self.ticket.price, self.ticket.currency)

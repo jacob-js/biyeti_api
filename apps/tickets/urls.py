@@ -8,5 +8,6 @@ urlpatterns = [
     path('purchases/<uuid:event_id>', views.getPurchasesList),
     path('buy', views.createPurchase),
     path('user/<uuid:user_id>', views.get_user_tickets),
-    path('status/<uuid:id>', views.check_ticket_status)
+    path('status/<uuid:id>', views.check_ticket_status),
+    path('sum', views.get_sum_of_purchases)
 ]
