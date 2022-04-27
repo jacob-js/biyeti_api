@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from Utils.auth_utils import CanUserChangeEntrys, isAdminEditingData
+from Utils.auth_utils import CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData
 from Utils.helpers import sendRes
 
 from Utils.pagination import Pagination
@@ -34,7 +34,7 @@ def events_view(request):
         return sendRes(status=400, error=serializer.errors)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([CanUserChangeEntrys])
+@permission_classes([CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData])
 def event_view(request, event_id):
     try:
         event = Event.objects.get(id=event_id)
