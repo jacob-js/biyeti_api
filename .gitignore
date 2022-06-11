@@ -1,4 +1,4 @@
-amanivenv/*
+bookitvenv/*
 .env
 
 __pycache__/
@@ -44,7 +44,7 @@ coverage.xml
 .python-version
 
 # VirtualEnv
-.amanivenv/
+.bookitvenv/
 
 # Developers
 *.sw*

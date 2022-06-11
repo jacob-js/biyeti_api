@@ -1,22 +1,34 @@
 import re
+import cloudinary.uploader
 from rest_framework import serializers
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.validators import UniqueValidator
+from django.db.models import Q
 
 from Utils.oauth import Google
-from .models import User
 from globals import config
-from django.db.models import Q
-import cloudinary.uploader
+from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    User serializer class
+    """
     email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.filter(is_active=True), message="Cet email existe déjà")]
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.filter(is_active=True),
+                message="Cet email existe déjà"
+            )
+        ]
     )
     phone_number= serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.filter(is_active=True), message="Ce numéro de téléphone existe déjà")]
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.filter(is_active=True),
+                message="Ce numéro de téléphone existe déjà"
+            )
+        ]
     )
-    class Meta:
+    class Meta: # pylint: disable=missing-class-docstring, too-few-public-methods
         model = User
         fields = '__all__'
         extra_kwargs = {
@@ -27,15 +39,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs: dict):
         pwd = attrs.get('password')
-        if len(pwd) != 4:
-            raise serializers.ValidationError({ 'password': 'le mot de passe doit contenir 4 caracteres' })
-        if not re.match('[0-9]', pwd):
-            raise serializers.ValidationError({ 'password': 'Le mot de passe doit contenir que des chiffres' })
+        if not re.match("^.*(?=.{8,})(?=.*\d)(?=.*[A-Za-z]).*$", pwd):
+            raise serializers.ValidationError(
+                { 
+                    'password': 'Le mot de passe doit contenir au moins 8 caracteres inclus les chiffres et les lettres' 
+                }
+            )
 
         return attrs
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict):
         password = validated_data.pop('password')
+        validated_data.pop('groups', None)
+        validated_data.pop('user_permissions', None)
+        validated_data.setdefault('is_active', True)
         user = self.Meta.model(**validated_data)
         if password is not None:
             user.set_password(password)
@@ -55,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({ 'email': 'Ce numéro de téléphone existe déjà' })
         except User.DoesNotExist:
             instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-        except:
+        except Exception: # pylint: disable=broad-except
             # if no phone number, do nothing
             pass
 
@@ -78,25 +95,29 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer): # pylint: disable=abstract-method
+    """
+    Login serializer, required fields: (identifier, password)
+    """
     identifier = serializers.CharField()
     password = serializers.CharField()
 
-class GoogleAuthSerializer(serializers.Serializer):
+class GoogleAuthSerializer(serializers.Serializer): # pylint: disable=abstract-method
+    """
+    Google login serializer
+    """
     auth_token = serializers.CharField()
 
     def validate(self, attrs):
         user_data = Google.validate(attrs.get('auth_token'))
         try:
             user_data['sub']
-        except:
-            print(user_data)
-            raise serializers.ValidationError( 'le jeton est invalid' )
+        except Exception as exeception: # pylint: disable=broad-except
+            raise serializers.ValidationError( 'le jeton est invalid' ) from exeception
         attrs.setdefault('email', user_data['email'])
         attrs.setdefault('firstname', user_data['given_name'])
         attrs.setdefault('lastname', user_data['family_name'])
         attrs.setdefault('auth_provider', 'google')
         attrs.__delitem__('auth_token')
 
-        print(attrs)
         return attrs

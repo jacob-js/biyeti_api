@@ -1,5 +1,5 @@
-from django.db import models
 import uuid
+from django.db import models
 from apps.events.models import Event
 
 # Create your models here.

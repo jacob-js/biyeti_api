@@ -1,9 +1,7 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from Utils.auth_utils import CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData
 from Utils.helpers import sendRes
-
 from Utils.pagination import Pagination
 
 from .serializers import CategorySerializer, EventSerializer
@@ -14,6 +12,9 @@ from .models import Event, Category
 @permission_classes([CanUserChangeEntrys])
 @parser_classes([JSONParser, MultiPartParser, FormParser])
 def events_view(request):
+    """
+    List all events, or create a new event.
+    """
     if request.method == 'GET':
         category_id = request.query_params.get('category_id')
         events = []
@@ -26,7 +27,7 @@ def events_view(request):
         serializer = EventSerializer(results, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         serializer = EventSerializer(data={**request.data.copy(), 'user': request.user.id})
         if serializer.is_valid():
             serializer.save()
@@ -36,6 +37,9 @@ def events_view(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData])
 def event_view(request, event_id):
+    """
+    Retrieve, update or delete a event instance.
+    """
     try:
         event = Event.objects.get(id=event_id)
     except Event.DoesNotExist:
@@ -45,14 +49,14 @@ def event_view(request, event_id):
         serializer = EventSerializer(event)
         return sendRes(status=200, data=serializer.data)
 
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         serializer = EventSerializer(event, data={**request.data, 'user': request.user.id})
         if serializer.is_valid():
             serializer.save()
             return sendRes(status=200, data=serializer.data, msg="Evénement modifié")
         return sendRes(status=400, error=serializer.errors)
 
-    elif request.method == 'DELETE':
+    if request.method == 'DELETE':
         event.delete()
         return sendRes(status=204, msg="Evénement supprimé")
 
@@ -60,11 +64,15 @@ def event_view(request, event_id):
 @parser_classes([JSONParser, MultiPartParser, FormParser])
 @permission_classes([CanUserChangeEntrys, isAdminEditingData])
 def categorys_view(request):
+    """
+    List all categories, or create a new category.
+    """
     if(request.method == 'GET'):
         categorys = Category.objects.all()
         serializer = CategorySerializer(categorys, many=True)
         return sendRes(status=200, data=serializer.data)
-    elif(request.method == 'POST'):
+
+    if(request.method == 'POST'):
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
