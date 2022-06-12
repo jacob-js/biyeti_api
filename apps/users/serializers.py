@@ -5,7 +5,6 @@ from rest_framework.validators import UniqueValidator
 from django.db.models import Q
 
 from Utils.oauth import Google
-from globals import config
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):

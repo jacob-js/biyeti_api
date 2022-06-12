@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import Utils.imageUploader
 from . import config
 import django_heroku
 import dj_database_url
@@ -169,3 +168,11 @@ REST_FRAMEWORK = {
 }
 
 # APPEND_SLASH=False
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config.email_host
+EMAIL_PORT = config.email_port
+EMAIL_USE_TLS = config.EMAIL_USE_TLS
+EMAIL_HOST_USER = config.email_host_user
+EMAIL_HOST_PASSWORD = config.email_host_password
