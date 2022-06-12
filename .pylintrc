@@ -3,4 +3,5 @@ disable=
     C0114,
     no-member,
     broad-except,
-    line-too-long
+    line-too-long,
+    bare-except,

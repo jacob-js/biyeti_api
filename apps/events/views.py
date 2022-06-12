@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from Utils.auth_utils import CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData
+from Utils.auth_utils import CanUserChangeEntrys, CheckIsAgentEditingData, IsAdminEditingData
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
 
@@ -35,7 +35,7 @@ def events_view(request):
         return sendRes(status=400, error=serializer.errors)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([CanUserChangeEntrys, checkIsAgentEditingData, isAdminEditingData])
+@permission_classes([CanUserChangeEntrys, CheckIsAgentEditingData, IsAdminEditingData])
 def event_view(request, event_id):
     """
     Retrieve, update or delete a event instance.
@@ -62,7 +62,7 @@ def event_view(request, event_id):
 
 @api_view(['GET', 'POST'])
 @parser_classes([JSONParser, MultiPartParser, FormParser])
-@permission_classes([CanUserChangeEntrys, isAdminEditingData])
+@permission_classes([CanUserChangeEntrys, IsAdminEditingData])
 def categorys_view(request):
     """
     List all categories, or create a new category.

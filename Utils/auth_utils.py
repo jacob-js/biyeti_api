@@ -1,10 +1,13 @@
-from apps.agents.models import Agent
 import jwt, datetime
-from apps.users.models import User
-from globals.config import private_key
 from rest_framework import permissions
+from apps.users.models import User
+from apps.agents.models import Agent
+from globals.config import private_key
 
 def create_token(user_id):
+    """
+    Providing a user_id, this function create a token that will be used to authenticate the user
+    """
     return jwt.encode({
         'user_id': user_id, 
         'exp': datetime.datetime.now() + datetime.timedelta(days=7),
@@ -17,11 +20,31 @@ def create_verification_token(code: int) -> str:
     """
     return jwt.encode({
         'code': code, 
-        'exp': datetime.datetime.now() + datetime.timedelta(minutes=30),
+        'exp': datetime.datetime.now() + datetime.timedelta(minutes=5) - datetime.timedelta(hours=2),
         'iat': datetime.datetime.now()
     }, private_key )
 
+class DecodeVerificationToken(permissions.BasePermission):
+    """
+    This class is used to verify the code sent by the user if is match with the code in the token
+    """
+    message = { 'error': "Code de vérification incorrecte" }
+    def has_permission(self, request, view):
+        try:
+            token = request.headers['verificationtoken']
+            if not token:
+                print('no token')
+                return False
+            decoded_token = jwt.decode(token, private_key, algorithms=['HS256'])
+            sent_code = decoded_token['code']
+            return str(sent_code) == str(request.data['code'])
+        except:
+            return False
+
 class VerifyToken(permissions.BasePermission):
+    """
+    This class is used to verify the token sent by the user in order to authenticate him
+    """
     message = {'error': "Erreur d'authentification"}
     
     def has_permission(self, request, view):
@@ -43,10 +66,13 @@ class VerifyToken(permissions.BasePermission):
             return False
 
 class CanUserChangeEntrys(permissions.BasePermission):
+    """
+    This class is used to check if user is authenticated before changing the data in the database
+    """
     message = {'error': "Erreur d'authentification"}
     
     def has_permission(self, request, view):
-        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+        if request.method in ('POST', 'PUT', 'DELETE'):
             try:
                 token = request.headers['authtoken']
                 if not token:
@@ -67,23 +93,32 @@ class CanUserChangeEntrys(permissions.BasePermission):
             return True
 
 class VerifyAdmin(permissions.BasePermission):
+    """
+    This class is used to verify if the user is an admin
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
         return request.user.is_superuser
 
 
-class isAdminEditingData(permissions.BasePermission):
+class IsAdminEditingData(permissions.BasePermission):
+    """
+    This class is used to verify if the user is an admin before changing the data in the database
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
     
     def has_permission(self, request, view):
-        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+        if request.method in ('POST', 'PUT', 'DELETE'):
             return request.user.is_superuser
         else:
             return True
 
 
-class checkIsAgent(permissions.BasePermission):
+class CheckIsAgent(permissions.BasePermission):
+    """
+    This class is used to verify if the authenticated user is an agent before accessing the api
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
@@ -92,14 +127,17 @@ class checkIsAgent(permissions.BasePermission):
             agent = Agent.objects.get(user=request.user.id, event=event_id)
             request.agent = agent
             return True
-        except Exception as e:
+        except:
             return False
 
-class checkIsAgentEditingData(permissions.BasePermission):
+class CheckIsAgentEditingData(permissions.BasePermission):
+    """
+    This class is used to verify if the user is an agent before changing the data in the database
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
-        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+        if request.method in ('POST', 'PUT', 'DELETE'):
             try:
                 event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
                 agent = Agent.objects.get(user=request.user.id, event=event_id)
@@ -111,16 +149,21 @@ class checkIsAgentEditingData(permissions.BasePermission):
             return True
 
 class CheckIsEventAdmin(permissions.BasePermission):
+    """
+    This class is used to verify if the authenticated user is an event admin before accessing the api
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
         return request.agent.role == 'admin'
 
 class CheckIsEventAdminEditingData(permissions.BasePermission):
+    """
+    This class is used to verify if the authenticated user is an event admin before changing the data in the database
+    """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
     def has_permission(self, request, view):
-        if request.method == 'POST' or request.method == 'PUT' or request.method == 'DELETE':
+        if request.method in ('POST', 'PUT', 'DELETE'):
             return request.agent.role == 'admin'
-        else:
-            return True
+        return True

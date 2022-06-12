@@ -1,7 +1,7 @@
 import datetime
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
-from Utils.auth_utils import CheckIsEventAdmin, CheckIsEventAdminEditingData, VerifyAdmin, VerifyToken, checkIsAgent, checkIsAgentEditingData
+from Utils.auth_utils import CheckIsEventAdmin, CheckIsEventAdminEditingData, VerifyAdmin, VerifyToken, CheckIsAgent, CheckIsAgentEditingData
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
 from .serialzers import PurchasePostSerialzer, PurchaseSerializer, TicketPostSerialzer, TicketSerializer
@@ -18,7 +18,7 @@ def get_event_tickets_view(request, event_id):
         return sendRes(None, False, 'Event not found')
 
 @api_view(['POST'])
-@permission_classes([VerifyToken, checkIsAgent, CheckIsEventAdmin])
+@permission_classes([VerifyToken, CheckIsAgent, CheckIsEventAdmin])
 def create_event_ticket(request):
     try:
         serializer = TicketPostSerialzer(data=request.data)
@@ -98,7 +98,7 @@ def get_user_tickets(request, user_id):
         return sendRes(500, "Quelque chose s'est mal passée")
 
 @api_view(['GET'])
-@permission_classes([VerifyToken, checkIsAgent])
+@permission_classes([VerifyToken, CheckIsAgent])
 def check_ticket_status(request, id):
     try:
         ticket = Purchase.objects.get(id=id)
@@ -117,7 +117,7 @@ def check_ticket_status(request, id):
         return sendRes(404, "Ticket introuvable")
 
 @api_view(['GET'])
-@permission_classes([VerifyToken, checkIsAgent])
+@permission_classes([VerifyToken, CheckIsAgent])
 def get_sum_of_purchases(request):
     event_id = request.query_params.get('event_id')
     purchases = []

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import permission_classes, api_view
-from Utils.auth_utils import VerifyAdmin, VerifyToken, create_verification_token, create_token
+from Utils.auth_utils import DecodeVerificationToken, VerifyAdmin, VerifyToken, create_verification_token, create_token
 from Utils.email_utils import send_simple_mail
 
 from Utils.helpers import sendRes
@@ -141,3 +141,11 @@ def send_verification_code_view(_, identifier):
         return sendRes(200, data={'token': token}, msg='Code de vérification envoyé')
     except Exception as exception:
         return sendRes(500, error=exception.__str__())
+
+@api_view(['POST'])
+@permission_classes([DecodeVerificationToken])
+def verify_verification_code_view(_):
+    """
+    verify verification code view
+    """
+    return sendRes(200, msg='Code de vérification validé')

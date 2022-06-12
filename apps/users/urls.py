@@ -13,5 +13,6 @@ urlpatterns = [
     path('login/google', views.GoogleLoginView.as_view()),
     path('profile', views.ProfileView.as_view()),
     path('verification-code/<str:identifier>', views.send_verification_code_view),
+    path('validate-code', views.verify_verification_code_view),
     re_path(r'reset-password/(?P<phone>[(+*)][0-9]{0,15})', views.PasswordResetView.as_view()),
 ] + router.urls
