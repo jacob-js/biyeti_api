@@ -11,7 +11,10 @@ def create_token(user_id):
         'iat': datetime.datetime.now()
     }, private_key )
 
-def create_reset_pwd_token(code: int) -> str:
+def create_verification_token(code: int) -> str:
+    """
+    Providing a code, this function create a token that will be used to verify the user
+    """
     return jwt.encode({
         'code': code, 
         'exp': datetime.datetime.now() + datetime.timedelta(minutes=30),

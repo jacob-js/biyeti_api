@@ -1,12 +1,12 @@
 import datetime
-import email
 from random import randint
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import permission_classes
-from Utils.auth_utils import VerifyAdmin, VerifyToken, create_reset_pwd_token, create_token
+from rest_framework.decorators import permission_classes, api_view
+from Utils.auth_utils import VerifyAdmin, VerifyToken, create_verification_token, create_token
+from Utils.email_utils import send_simple_mail
 
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
@@ -124,7 +124,20 @@ class PasswordResetView(APIView):
         code = randint(1000, 10000)
         try:
             send_sms(phone, 'Votre code de confirmation est: {}'.format(code))
-            token = create_reset_pwd_token(code)
+            token = create_verification_token(code)
             return sendRes(200, data={'token': token}, msg='Code de confirmation envoyé')
-        except Exception as e:
-            return sendRes(500, error=e.__str__())
+        except Exception as exception:
+            return sendRes(500, error=exception.__str__())
+
+@api_view(['GET'])
+def send_verification_code_view(_, identifier):
+    """
+    send verification code view
+    """
+    code = randint(1000, 10000)
+    try:
+        token = create_verification_token(code)
+        send_simple_mail("Code de vérification", f'Votre code de vérification est: {code}', identifier)
+        return sendRes(200, data={'token': token}, msg='Code de vérification envoyé')
+    except Exception as exception:
+        return sendRes(500, error=exception.__str__())
