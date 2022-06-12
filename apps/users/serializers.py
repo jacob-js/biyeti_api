@@ -120,3 +120,29 @@ class GoogleAuthSerializer(serializers.Serializer): # pylint: disable=abstract-m
         attrs.__delitem__('auth_token')
 
         return attrs
+
+class UpdatePwdSerializer(serializers.Serializer): # pylint: disable=abstract-method
+    """
+    Update password serializer
+    """
+    password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+        if not re.match("^.*(?=.{8,})(?=.*\d)(?=.*[A-Za-z]).*$", password):
+            raise serializers.ValidationError({
+                'error': 'Le mot de passe doit contenir au moins 8 caracteres inclus les chiffres et les lettres'
+            })
+        if password != confirm_password:
+            raise serializers.ValidationError({
+                'error': 'Les mots de passe ne correspondent pas'
+            })
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance

@@ -12,7 +12,7 @@ from Utils.helpers import sendRes
 from Utils.pagination import Pagination
 from Utils.sms import send_sms
 from .models import User
-from .serializers import GoogleAuthSerializer, LoginSerializer, UserSerializer
+from .serializers import GoogleAuthSerializer, LoginSerializer, UpdatePwdSerializer, UserSerializer
 
 # Create your views here.
 class RegisterView(APIView):
@@ -118,27 +118,43 @@ class ProfileView(APIView):
         except User.DoesNotExist:
             return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
 
-class PasswordResetView(APIView):
-
-    def get(self, request, phone):
-        code = randint(1000, 10000)
-        try:
-            send_sms(phone, 'Votre code de confirmation est: {}'.format(code))
-            token = create_verification_token(code)
-            return sendRes(200, data={'token': token}, msg='Code de confirmation envoyé')
-        except Exception as exception:
-            return sendRes(500, error=exception.__str__())
+@api_view(['PUT'])
+@permission_classes([DecodeVerificationToken])
+def reset_password_view(request):
+    """
+    Reset password view
+    """
+    try:
+        user_id = request.user_id
+        user = User.objects.get(id=user_id)
+        serializer = UpdatePwdSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.update(user, serializer.validated_data)
+            return sendRes(status.HTTP_200_OK, msg="Mot de passe modifié")
+        return sendRes(status.HTTP_400_BAD_REQUEST, error=serializer.errors)
+    except Exception as exception:
+        return sendRes(500, error=exception.__str__())
 
 @api_view(['GET'])
-def send_verification_code_view(_, identifier):
+def send_verification_code_view(request, identifier):
     """
     send verification code view
     """
-    code = randint(1000, 10000)
+    code = randint(10000, 100000)
+    reset_pwd = request.GET.get('reset_pwd')
     try:
+        if bool(reset_pwd):
+            user = User.objects.get(Q(email=identifier) | Q(phone_number=identifier))
+            serializer = UserSerializer(user)
+            if user is not None:
+                token = create_verification_token(code, {'reset_pwd': True, 'user_id': serializer.data['id']})
+                send_simple_mail("Code de vérification", f'Votre code de vérification est: {code}', identifier)
+                return sendRes(200, data={'token': token}, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')
         token = create_verification_token(code)
         send_simple_mail("Code de vérification", f'Votre code de vérification est: {code}', identifier)
         return sendRes(200, data={'token': token}, msg='Code de vérification envoyé')
+    except User.DoesNotExist:
+        return sendRes(200, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')  
     except Exception as exception:
         return sendRes(500, error=exception.__str__())
 

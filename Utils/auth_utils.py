@@ -14,14 +14,15 @@ def create_token(user_id):
         'iat': datetime.datetime.now()
     }, private_key )
 
-def create_verification_token(code: int) -> str:
+def create_verification_token(code: int, extra: dict or None = None) -> str:
     """
     Providing a code, this function create a token that will be used to verify the user
     """
     return jwt.encode({
         'code': code, 
-        'exp': datetime.datetime.now() + datetime.timedelta(minutes=5) - datetime.timedelta(hours=2),
-        'iat': datetime.datetime.now()
+        'exp': datetime.datetime.now() + datetime.timedelta(minutes=15) - datetime.timedelta(hours=2),
+        'iat': datetime.datetime.now(),
+        **(extra or {})
     }, private_key )
 
 class DecodeVerificationToken(permissions.BasePermission):
@@ -35,7 +36,14 @@ class DecodeVerificationToken(permissions.BasePermission):
             if not token:
                 print('no token')
                 return False
-            decoded_token = jwt.decode(token, private_key, algorithms=['HS256'])
+            decoded_token: dict = jwt.decode(token, private_key, algorithms=['HS256'])
+            reset_pwd = decoded_token.get('reset_pwd', None)
+
+            # if the token is for reseting the password
+            if reset_pwd:
+                if request.method == 'PUT':
+                    request.user_id = decoded_token['user_id']
+                    return True
             sent_code = decoded_token['code']
             return str(sent_code) == str(request.data['code'])
         except:

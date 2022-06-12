@@ -1,10 +1,9 @@
-from django.urls import path, re_path
-from rest_framework.routers import DefaultRouter, SimpleRouter
+from django.urls import path
+from rest_framework.routers import SimpleRouter
 from . import views
 
 router = SimpleRouter()
 router.register(r'all', views.UserAdminView, basename='users')
-# router.register(r'^reset-password?/<str:phone>', views.PasswordResetView, basename='users')
 
 urlpatterns = [
     path('register', views.RegisterView.as_view()),
@@ -14,5 +13,5 @@ urlpatterns = [
     path('profile', views.ProfileView.as_view()),
     path('verification-code/<str:identifier>', views.send_verification_code_view),
     path('validate-code', views.verify_verification_code_view),
-    re_path(r'reset-password/(?P<phone>[(+*)][0-9]{0,15})', views.PasswordResetView.as_view()),
+    path('reset-password', views.reset_password_view),
 ] + router.urls
