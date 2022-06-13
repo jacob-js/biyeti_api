@@ -49,8 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict):
         password = validated_data.pop('password')
-        validated_data.pop('groups', None)
-        validated_data.pop('user_permissions', None)
         validated_data.setdefault('is_active', True)
         user = self.Meta.model(**validated_data)
         if password is not None:

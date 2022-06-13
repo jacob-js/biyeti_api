@@ -24,7 +24,7 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         code = randint(10000, 100000)
         token = create_signup_token(code, request.data)
-        send_verification_code_email(serializer.data, code)
+        send_verification_code_email(request.data, code)
         return sendRes(status=status.HTTP_202_ACCEPTED, data={ 'token': token }, msg='Verification code sent succefully')
 
 class ValidateAndCreateUser(APIView):
@@ -37,7 +37,8 @@ class ValidateAndCreateUser(APIView):
         serializer = UserSerializer(data=request.user_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return sendRes(status=status.HTTP_201_CREATED, data=serializer.data, msg='User created succefully')
+        token = create_token(serializer.data['id'])
+        return sendRes(status=status.HTTP_201_CREATED, data={"user": serializer.data, "token": token}, msg='User created succefully')
 
 
 class LoginView(APIView):
@@ -189,7 +190,7 @@ def send_verification_code_view(_, identifier):
         user = User.objects.get(Q(email=identifier) | Q(phone_number=identifier))
         serializer = UserSerializer(user)
         token = create_verification_token(code, {'reset_pwd': True, 'user_id': serializer.data['id']})
-        send_verification_code_email(user, code)
+        send_verification_code_email(serializer.data, code)
         return sendRes(200, data={'token': token}, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')
     except User.DoesNotExist:
         return sendRes(200, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')  
