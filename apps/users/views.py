@@ -5,26 +5,46 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import permission_classes, api_view
-from Utils.auth_utils import DecodeVerificationToken, VerifyAdmin, VerifyToken, create_verification_token, create_token
-from Utils.email_utils import send_simple_mail
+from Utils.auth_utils import DecodeSignupToken, DecodeVerificationToken, VerifyAdmin, VerifyToken, create_signup_token, create_verification_token, create_token
+from Utils.email_utils import send_verification_code_email
 
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
-from Utils.sms import send_sms
 from .models import User
 from .serializers import GoogleAuthSerializer, LoginSerializer, UpdatePwdSerializer, UserSerializer
 
 # Create your views here.
 class RegisterView(APIView):
-    def post(self, request):
+    """
+    Register a new user
+    This view doesn't save the user in the database, it only create a token that will be used to create a user
+    """
+    def post(self, request): # pylint: disable=missing-docstring
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        code = randint(10000, 100000)
+        token = create_signup_token(code, request.data)
+        send_verification_code_email(serializer.data, code)
+        return sendRes(status=status.HTTP_202_ACCEPTED, data={ 'token': token }, msg='Verification code sent succefully')
+
+class ValidateAndCreateUser(APIView):
+    """
+    Validate the code sent by the user and save the user in the database
+    """
+    permission_classes = [DecodeSignupToken]
+    def post(self, request): # pylint: disable=missing-docstring
+        print(request.user_data)
+        serializer = UserSerializer(data=request.user_data)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
-        token = create_token(serializer.data.get('id'))
-        return sendRes(status=status.HTTP_201_CREATED, data={ 'token': token, 'user': serializer.data }, msg='User created successfully')
+        return sendRes(status=status.HTTP_201_CREATED, data=serializer.data, msg='User created succefully')
+
 
 class LoginView(APIView):
-    def post(self, request):
+    """
+    Login a user
+    """
+    def post(self, request): # pylint: disable=missing-docstring
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -35,12 +55,14 @@ class LoginView(APIView):
                     token = create_token(ser.data.get('id'))
                     return sendRes(status.HTTP_200_OK, data={'token': token, 'user': ser.data})
             return sendRes(status.HTTP_401_UNAUTHORIZED, "Email ou mot de passe incorrect")
-        except Exception as e:
-            print(e.__str__())
+        except:
             return sendRes(status.HTTP_401_UNAUTHORIZED, "Email ou mot de passe incorrect")
 
 class GoogleLoginView(APIView):
-    def post(self, request):
+    """
+    Login a user using google
+    """
+    def post(self, request): # pylint: disable=missing-docstring
         serializer = GoogleAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -53,22 +75,31 @@ class GoogleLoginView(APIView):
             ser = UserSerializer(user)
             token = create_token(ser.data.get('id'))
             return sendRes(status.HTTP_202_ACCEPTED, msg='User created successfully', data={'token': token, 'user': ser.data})
-        except Exception as e:
-            return sendRes(status.HTTP_500_INTERNAL_SERVER_ERROR, error=e.__str__())
+        except Exception as error:
+            return sendRes(status.HTTP_500_INTERNAL_SERVER_ERROR, error=error.__str__())
 
 class GetLogedUser(APIView):
+    """
+    Get the user logged in
+    """
     permission_classes = [VerifyToken]
 
-    def get(self, request):
+    def get(self, request): # pylint: disable=missing-docstring
         serializer = UserSerializer(request.user)
         return sendRes(status.HTTP_200_OK, data=serializer.data)
 
 
 class UserAdminView(viewsets.ViewSet):
+    """
+    Admin can list all users and update the user's status
+    """
     permission_classes = [VerifyToken, VerifyAdmin]
     serializer_class = UserSerializer
 
     def list(self, request):
+        """
+        List all users
+        """
         users = User.objects.filter(is_active=True).order_by('-created_at')
         paginator = Pagination()
         results = paginator.paginate_queryset(users, request)
@@ -76,6 +107,9 @@ class UserAdminView(viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk=None):
+        """
+        Retrieve a user
+        """
         try:
             user = User.objects.get(id=pk, is_active=True)
         except User.DoesNotExist:
@@ -85,12 +119,13 @@ class UserAdminView(viewsets.ViewSet):
         serializer = self.serializer_class(user)
         return sendRes(status.HTTP_200_OK, data=serializer.data)
 
-    def destroy(self, request, pk=None):
+    def destroy(self, _, pk=None): # pylint: disable=invalid-name
+        """
+        Delete a user
+        """
         try:
-            print('delete')
             user = User.objects.get(id=pk, is_active=True)
         except User.DoesNotExist:
-            print('delete', request.method)
             return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
         user.is_active = False
         user.save()
@@ -98,10 +133,16 @@ class UserAdminView(viewsets.ViewSet):
         return sendRes(status.HTTP_200_OK, data=serializer.data, msg="Utilisateur supprimé")
 
 class ProfileView(APIView):
+    """
+    Profile of the user
+    """
     permission_classes = [VerifyToken]
     serializer_class = UserSerializer
 
     def get(self, request):
+        """
+        Get the profile of the user
+        """
         try:
             user = User.objects.get(id=request.user.id, is_active=True)
             serializer = UserSerializer(user)
@@ -110,6 +151,9 @@ class ProfileView(APIView):
             return sendRes(status.HTTP_404_NOT_FOUND, "Utilisateur introuvable")
 
     def put(self, request):
+        """
+        Update the profile of the user
+        """
         try:
             user = User.objects.get(id=request.user.id, is_active=True)
             serializer = UserSerializer(user)
@@ -136,23 +180,17 @@ def reset_password_view(request):
         return sendRes(500, error=exception.__str__())
 
 @api_view(['GET'])
-def send_verification_code_view(request, identifier):
+def send_verification_code_view(_, identifier):
     """
     send verification code view
     """
     code = randint(10000, 100000)
-    reset_pwd = request.GET.get('reset_pwd')
     try:
-        if bool(reset_pwd):
-            user = User.objects.get(Q(email=identifier) | Q(phone_number=identifier))
-            serializer = UserSerializer(user)
-            if user is not None:
-                token = create_verification_token(code, {'reset_pwd': True, 'user_id': serializer.data['id']})
-                send_simple_mail("Code de vérification", f'Votre code de vérification est: {code}', identifier)
-                return sendRes(200, data={'token': token}, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')
-        token = create_verification_token(code)
-        send_simple_mail("Code de vérification", f'Votre code de vérification est: {code}', identifier)
-        return sendRes(200, data={'token': token}, msg='Code de vérification envoyé')
+        user = User.objects.get(Q(email=identifier) | Q(phone_number=identifier))
+        serializer = UserSerializer(user)
+        token = create_verification_token(code, {'reset_pwd': True, 'user_id': serializer.data['id']})
+        send_verification_code_email(user, code)
+        return sendRes(200, data={'token': token}, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')
     except User.DoesNotExist:
         return sendRes(200, msg='Code de vérification envoyé à votre adresse email si vous avez un compte valide')  
     except Exception as exception:

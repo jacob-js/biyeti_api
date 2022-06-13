@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-)6^ayc9&e%(5h4i%7xx2gl+)b%2k8^mh%(e1b5^-f$pzkje%!+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bookitbackend.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['bookitbackend.herokuapp.com', '127.0.0.1', 'localhost', '192.168.1.171']
 
 
 # Application definition
@@ -176,3 +176,4 @@ EMAIL_PORT = config.email_port
 EMAIL_USE_TLS = config.EMAIL_USE_TLS
 EMAIL_HOST_USER = config.email_host_user
 EMAIL_HOST_PASSWORD = config.email_host_password
+DEFAULT_FROM_EMAIL = 'Bookit App'

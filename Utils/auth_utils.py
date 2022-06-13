@@ -14,6 +14,35 @@ def create_token(user_id):
         'iat': datetime.datetime.now()
     }, private_key )
 
+def create_signup_token(code: int, data) -> str:
+    """
+    Providing a verification code and user data, this function create a token that will be used to create a user
+    """
+    return jwt.encode({
+        'code': code,
+        'user_data': data,
+        'exp': datetime.datetime.now() + datetime.timedelta(minutes=15) - datetime.timedelta(hours=2),
+        'iat': datetime.datetime.now(),
+    }, private_key )
+
+class DecodeSignupToken(permissions.BasePermission):
+    """
+    Decode signup Token
+    """
+    message = { "error": "Code de vérification incorrect" }
+
+    def has_permission(self, request, view):
+        try:
+            token = request.headers['signuptoken']
+            decoded = jwt.decode(token, private_key, algorithms=['HS256'])
+            input_code = request.data.get('code')
+            if str(input_code) == str(decoded['code']):
+                request.user_data = decoded['user_data']
+                return True
+            return False
+        except:
+            return False
+
 def create_verification_token(code: int, extra: dict or None = None) -> str:
     """
     Providing a code, this function create a token that will be used to verify the user

@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[
             UniqueValidator(
-                queryset=User.objects.filter(is_active=True),
+                queryset=User.objects.all(),
                 message="Cet email existe déjà"
             )
         ]
@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
     phone_number= serializers.CharField(
         validators=[
             UniqueValidator(
-                queryset=User.objects.filter(is_active=True),
+                queryset=User.objects.all(),
                 message="Ce numéro de téléphone existe déjà"
             )
         ]
