@@ -37,7 +37,7 @@ class TicketPostSerialzer(serializers.ModelSerializer):
 
 class PurchaseSerializer(serializers.ModelSerializer):
     ticket = serializers.DictField(source='ticket.item')
-    user = UserSerializer()
+    user = serializers.DictField(source='user.item')
     class Meta:
         model = models.Purchase
         fields = '__all__'

@@ -5,6 +5,7 @@ from rest_framework.validators import UniqueValidator
 from django.db.models import Q
 
 from Utils.oauth import Google
+from Utils.imageUploader import cloudPhoto
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):

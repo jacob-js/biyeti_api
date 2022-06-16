@@ -89,7 +89,7 @@ def createPurchase(request):
 
 @api_view(['GET'])
 @permission_classes([VerifyToken])
-def get_user_tickets(request, user_id):
+def get_user_tickets(_, user_id):
     try:
         purchases = Purchase.objects.filter(user=user_id).order_by('-purchased_at')
         serialzer = PurchaseSerializer(purchases, many=True)
@@ -99,7 +99,7 @@ def get_user_tickets(request, user_id):
 
 @api_view(['GET'])
 @permission_classes([VerifyToken, CheckIsAgent])
-def check_ticket_status(request, id):
+def check_ticket_status(_, id):
     try:
         ticket = Purchase.objects.get(id=id)
         serializer = PurchaseSerializer(ticket)

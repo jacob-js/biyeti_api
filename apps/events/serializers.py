@@ -2,6 +2,7 @@ import cloudinary.uploader #pylint disable=import-error
 from rest_framework.serializers import ModelSerializer, CharField
 from apps.agents.models import Agent
 from .models import Event, Category
+from Utils.imageUploader import cloudPhoto
 
 class EventSerializer(ModelSerializer):
     """

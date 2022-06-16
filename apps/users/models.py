@@ -56,3 +56,19 @@ class User(AbstractUser):
             UniqueConstraint(fields=['email'], condition=Q(is_active=True), name='Email déjà utilisé'),
             UniqueConstraint(fields=['phone_number'], condition=Q(is_active=True), name='Numéro de téléphone déjà utilisé')
         ]
+
+    def item(self) -> dict:
+        return {
+            'id': self.id,
+            'email': self.email,
+            'firstname': self.first_name,
+            'lastname': self.lastname,
+            'gender': self.gender,
+            'date_of_birth': self.date_of_birth,
+            'phone_number': self.phone_number,
+            'avatar': self.avatar,
+            'city': self.city,
+            'lat': self.lat,
+            'long': self.long,
+            'created_at': self.created_at
+        }
