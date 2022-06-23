@@ -1,4 +1,5 @@
 bookitvenv/*
+*venv
 .env
 
 __pycache__/

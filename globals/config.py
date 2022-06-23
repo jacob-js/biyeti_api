@@ -1,6 +1,6 @@
 from decouple import config as env
 
-environment = env('environment')
+environment = env('ENVIRONMENT')
 
 db_name = env('DB_NAME')
 db_user = env('DB_USER')
