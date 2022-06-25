@@ -1,3 +1,4 @@
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from Utils.auth_utils import CanUserChangeEntrys, CheckIsAgentEditingData, IsAdminEditingData
@@ -78,3 +79,23 @@ def categorys_view(request):
             serializer.save()
             return sendRes(status=201, data=serializer.data, msg="Catégorie enregistrée")
         return sendRes(status=400, error=serializer.errors)
+
+@api_view(['GET'])
+def search_events_view(request):
+    """
+    Search events.
+    """
+    query = request.query_params.get('query')
+    if query:
+        search_vector = SearchVector('name', 'description', 'category__name', 'location')
+        search_query = SearchQuery(query)
+        events = Event.objects.annotate(
+            search=search_vector,
+            rank=SearchRank(search_vector, search_query)
+        ).filter(search=search_query).order_by('-rank')
+        paginator = Pagination()
+        results = paginator.paginate_queryset(events, request)
+        serializer = EventSerializer(results, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    return sendRes(status=400, error="Requête invalide")
+    

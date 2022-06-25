@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from . import config
+from corsheaders.defaults import default_headers
 import django_heroku
 import dj_database_url
-from corsheaders.defaults import default_headers
+from . import config
 
 
 # Activate Django-Heroku.
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'rest_framework',
     'cloudinary',
     'corsheaders',

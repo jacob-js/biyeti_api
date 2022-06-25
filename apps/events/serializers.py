@@ -40,7 +40,7 @@ class EventSerializer(ModelSerializer):
         instance.save()
         return instance
 
-class CategorySerializer(ModelSerializer):
+class CategorySerializer(ModelSerializer): # pylint: disable=too-few-public-methods
     """
     Category model serializer
     """
