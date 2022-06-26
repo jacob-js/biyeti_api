@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -18,11 +19,15 @@ def events_view(request):
     """
     if request.method == 'GET':
         category_id = request.query_params.get('category_id')
+        coming = request.query_params.get('coming')
+        order_by = request.query_params.get('order_by', '-event_date')
         events = []
+        if bool(coming):
+            events = Event.objects.filter(event_date__gte=datetime.now()).order_by(order_by)
         if category_id:
-            events = Event.objects.filter(category_id=category_id).order_by('-event_date')
+            events = Event.objects.filter(category_id=category_id).order_by(order_by)
         else:
-            events = Event.objects.all().order_by('-event_date')
+            events = Event.objects.all().order_by(order_by)
         paginator = Pagination()
         results = paginator.paginate_queryset(events, request)
         serializer = EventSerializer(results, many=True)
