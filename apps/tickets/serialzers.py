@@ -1,7 +1,6 @@
 from apps.users.serializers import UserSerializer
 from . import models
 from rest_framework import serializers
-import datetime
 
 class EventSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -32,12 +31,15 @@ class TicketPostSerialzer(serializers.ModelSerializer):
             instance.currency = validated_data.get('currency', instance.currency)
             instance.event_date = validated_data.get('event_date', instance.event_date)
             instance.save()
-        except Exception as e:
-            raise serializers.ValidationError({ 'error': e.__str__() })
+        except Exception as exception:
+            raise serializers.ValidationError({ 'error': exception.__str__() })
 
 class PurchaseSerializer(serializers.ModelSerializer):
-    ticket = serializers.DictField(source='ticket.item')
-    user = serializers.DictField(source='user.item')
+    """
+    Purchase serializer
+    """
+    ticket = TicketSerializer()
+    user = UserSerializer()
     class Meta:
         model = models.Purchase
         fields = '__all__'

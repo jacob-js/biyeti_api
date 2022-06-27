@@ -38,7 +38,6 @@ class Event(models.Model):
         return {
             'id': self.id,
             'created_at': self.created_at,
-            'user': self.user,
             'name': self.name,
             'cover': self.cover,
             'event_date': self.event_date,
