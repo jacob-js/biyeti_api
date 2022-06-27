@@ -5,3 +5,4 @@ disable=
     broad-except,
     line-too-long,
     bare-except,
+    too-few-public-methods

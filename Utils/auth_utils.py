@@ -108,28 +108,24 @@ class CanUserChangeEntrys(permissions.BasePermission):
     """
     message = {'error': "Erreur d'authentification"}
     
-    def has_permission(self, request, view):
+    def has_permission(self, request, _):
         if request.method in ('POST', 'PUT', 'DELETE'):
             try:
                 token = request.headers['authtoken']
                 if not token:
                     return False
-                else:
-                    try:
-                        payload = jwt.decode(token, private_key, algorithms=['HS256'])
-                        user = User.objects.get(id=payload.get('user_id'), is_active=True)
-                        if user is None:
-                            return False
-                        request.user = user
-                        return True
-                    except:
-                        return False
+                payload = jwt.decode(token, private_key, algorithms=['HS256'])
+                user = User.objects.get(id=payload.get('user_id'), is_active=True)
+                if user is None:
+                    return False
+                request.user = user
+                return True
             except:
                 return False
         else:
             return True
 
-class VerifyAdmin(permissions.BasePermission):
+class VerifyAdmin(permissions.BasePermission): # pylint: disable=too-few-public-methods
     """
     This class is used to verify if the user is an admin
     """
@@ -176,7 +172,7 @@ class CheckIsAgentEditingData(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in ('POST', 'PUT', 'DELETE'):
             try:
-                event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data['event']
+                event_id = request.data.get('event_id') or request.query_params.get('event_id') or request.data.get('event') or view.kwargs.get('event_id')
                 agent = Agent.objects.get(user=request.user.id, event=event_id)
                 request.agent = agent
                 return True
@@ -200,7 +196,7 @@ class CheckIsEventAdminEditingData(permissions.BasePermission):
     """
     message = {'error': "Vous n'avez pas les droits pour effectuer cette action"}
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _):
         if request.method in ('POST', 'PUT', 'DELETE'):
             return request.agent.role == 'admin'
         return True

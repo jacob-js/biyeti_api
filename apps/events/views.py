@@ -2,7 +2,7 @@ from datetime import datetime
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from Utils.auth_utils import CanUserChangeEntrys, CheckIsAgentEditingData, IsAdminEditingData
+from Utils.auth_utils import CanUserChangeEntrys, CheckIsAgentEditingData, CheckIsEventAdminEditingData, IsAdminEditingData
 from Utils.helpers import sendRes
 from Utils.pagination import Pagination
 
@@ -41,7 +41,7 @@ def events_view(request):
         return sendRes(status=400, error=serializer.errors)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([CanUserChangeEntrys, CheckIsAgentEditingData, IsAdminEditingData])
+@permission_classes([CanUserChangeEntrys, CheckIsAgentEditingData, CheckIsEventAdminEditingData])
 def event_view(request, event_id):
     """
     Retrieve, update or delete a event instance.
