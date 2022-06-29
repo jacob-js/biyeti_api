@@ -1,19 +1,10 @@
+from apps.events.serializers import EventSerializer
 from apps.users.serializers import UserSerializer
 from . import models
 from rest_framework import serializers
 
-class EventSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    class Meta:
-        model = models.Event
-        fields = '__all__'
-
-class EventPostSerialzer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Event
-        fields = '__all__'
-
 class TicketSerializer(serializers.ModelSerializer):
+    event = EventSerializer()
     class Meta:
         model = models.Ticket
         fields = '__all__'

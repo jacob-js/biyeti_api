@@ -100,15 +100,18 @@ def get_user_tickets(_, user_id):
 @api_view(['GET'])
 @permission_classes([VerifyToken, CheckIsAgent])
 def check_ticket_status(_, id):
+    """
+    Check if the ticket is still valid and change its status
+    """
     try:
         ticket = Purchase.objects.get(id=id)
         serializer = PurchaseSerializer(ticket)
-        date_now = datetime.datetime.now().timestamp()
-        if ticket.interval < date_now:
-            ticket.available=False
-            ticket.save()
-            return sendRes(403, "La validité du ticket a expiré", data=serializer.data)
-        if ticket.availability != True:
+        # date_now = datetime.datetime.now().timestamp()
+        # if ticket.interval < date_now:
+        #     ticket.available=False
+        #     ticket.save()
+        #     return sendRes(403, "La validité du ticket a expiré", data=serializer.data)
+        if ticket.availability is not True:
             return sendRes(403, "Le ticket n'est plus valide", data=serializer.data)
         ticket.availability = False
         ticket.save()
