@@ -122,14 +122,29 @@ def check_ticket_status(_, id):
 @api_view(['GET'])
 @permission_classes([VerifyToken, CheckIsAgent])
 def get_sum_of_purchases(request):
+    """
+    Get purchases sum
+    """
     event_id = request.query_params.get('event_id')
     purchases = []
     if event_id:
         purchases = Purchase.objects.filter(ticket__event=event_id)
     else:
         purchases = Purchase.objects.all()
-    cdfPurchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'cdf', purchases)
-    usdPurchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'usd', purchases)
-    cdfSum = sum(map(lambda purchase: purchase.ticket.price, cdfPurchases))
-    usdSum = sum(map(lambda purchase: purchase.ticket.price, usdPurchases))
-    return sendRes(200, data={'cdf': cdfSum, 'usd': usdSum})
+    cdf_purchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'cdf', purchases)
+    usd_purchases = filter(lambda purchase: purchase.ticket.currency.lower() == 'usd', purchases)
+    cdf_sum = sum(map(lambda purchase: purchase.ticket.price, cdf_purchases))
+    usd_sum = sum(map(lambda purchase: purchase.ticket.price, usd_purchases))
+    return sendRes(200, data={'cdf': cdf_sum, 'usd': usd_sum})
+
+@api_view(['GET'])
+@permission_classes([VerifyToken, CheckIsAgent])
+def get_scanned_tickets(request, event_id):
+    """
+    Get scanned tickets
+    """
+    purchases = Purchase.objects.filter(ticket__event=event_id, available=False)
+    paginator = Pagination()
+    results = paginator.paginate_queryset(purchases, request)
+    serialzer = PurchaseSerializer(results, many=True)
+    return paginator.get_paginated_response(serialzer.data)
