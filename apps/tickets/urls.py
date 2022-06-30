@@ -10,5 +10,5 @@ urlpatterns = [
     path('user/<uuid:user_id>', views.get_user_tickets),
     path('status/<uuid:id>', views.check_ticket_status),
     path('sum', views.get_sum_of_purchases),
-    path('scanned', views.get_scanned_tickets),
+    path('scanned/<uuid:event_id>', views.get_scanned_tickets),
 ]
