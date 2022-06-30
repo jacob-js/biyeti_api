@@ -11,6 +11,10 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketPostSerialzer(serializers.ModelSerializer):
+    """
+    ticket post serializer
+    """
+    caption = serializers.CharField(max_length=255, required=False)
     class Meta:
         model = models.Ticket
         fields = '__all__'
