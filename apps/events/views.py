@@ -1,5 +1,7 @@
+import pytz
 from datetime import datetime
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from Utils.auth_utils import CanUserChangeEntrys, CheckIsAgentEditingData, CheckIsEventAdminEditingData, IsAdminEditingData
@@ -21,13 +23,24 @@ def events_view(request):
         category_id = request.query_params.get('category_id')
         coming = request.query_params.get('coming')
         order_by = request.query_params.get('order_by', '-event_date')
-        events = []
         if bool(coming):
-            events = Event.objects.filter(event_date__gte=datetime.now()).order_by(order_by)
+            kigali_timezone = pytz.timezone('Africa/Kigali')
+            now = datetime.now()
+            now = kigali_timezone.localize(now).isoformat()
+            events = Event.objects.filter(Q(event_date__gte=now)).order_by(order_by)
+            paginator = Pagination()
+            results = paginator.paginate_queryset(events, request)
+            serializer = EventSerializer(results, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
         if category_id:
             events = Event.objects.filter(category_id=category_id).order_by(order_by)
-        else:
-            events = Event.objects.all().order_by(order_by)
+            paginator = Pagination()
+            results = paginator.paginate_queryset(events, request)
+            serializer = EventSerializer(results, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        events = Event.objects.all().order_by(order_by)
         paginator = Pagination()
         results = paginator.paginate_queryset(events, request)
         serializer = EventSerializer(results, many=True)
@@ -39,6 +52,8 @@ def events_view(request):
             serializer.save()
             return sendRes(status=201, data=serializer.data, msg="Evénement enregistré")
         return sendRes(status=400, error=serializer.errors)
+
+    return sendRes(status=405, error='Method not allowed')
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([CanUserChangeEntrys, CheckIsAgentEditingData, CheckIsEventAdminEditingData])

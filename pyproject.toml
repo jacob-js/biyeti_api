@@ -60,6 +60,7 @@ uritemplate = "4.1.1"
 urllib3 = "1.26.7"
 whitenoise = "6.0.0"
 wrapt = "1.14.1"
+drf-yasg = "^1.20.0"
 
 [tool.poetry.dev-dependencies]
 
