@@ -24,7 +24,8 @@ class TicketPostSerialzer(serializers.ModelSerializer):
             instance.name = validated_data.get('name', instance.name)
             instance.price = validated_data.get('price', instance.price)
             instance.currency = validated_data.get('currency', instance.currency)
-            instance.event_date = validated_data.get('event_date', instance.event_date)
+            instance.caption = validated_data.get('caption', instance.caption)
+            instance.number_of_place = validated_data.get('number_of_place', instance.number_of_place)
             instance.save()
         except Exception as exception:
             raise serializers.ValidationError({ 'error': exception.__str__() })

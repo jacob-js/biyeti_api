@@ -31,7 +31,7 @@ def create_event_ticket(request):
         return sendRes(None, False, 'Event not found')
 
 class TicketDetail(APIView):
-    permission_classes = [VerifyToken]
+    permission_classes = [VerifyToken, CheckIsAgentEditingData, CheckIsEventAdminEditingData]
 
     def get(self, request, id):
         try:
