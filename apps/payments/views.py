@@ -28,7 +28,7 @@ def initiate_payment(request):
                 'merchant': PAYMENT_MERCHANT,
                 'type': 1,
                 'reference': uuid.uuid4().hex,
-                'callbackUrl': f'{SERVER_URL}/api/v1/payments/callback/?event={serializer.validated_data["event"]}&user={request.user.id}&ticket={serializer.validated_data["ticket"]}&token={token}',
+                'callbackUrl': f'{SERVER_URL}/api/v1/payments/callback?event={serializer.validated_data["event"]}&user={request.user.id}&ticket={serializer.validated_data["ticket"]}&token={token}',
             }, headers={
                 'Authorization': f'Bearer {PAYMENT_TOKEN}',
                 'content-type': 'application/json'
@@ -47,7 +47,6 @@ def callback(request):
     """
     print('Method : ', request.method)
     print('Data : ', request.data)
-    print("Body : ", request.body)
     try:
         data = request.data
         event = request.query_params.get('event')
