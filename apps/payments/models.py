@@ -9,10 +9,22 @@ class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='USD')
+    canal = models.CharField(max_length=255, null=True)
+    phone = models.CharField(max_length=255)
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
     ticket = models.ForeignKey('tickets.Ticket', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'payments'
+        ordering = ['-created_at']
+        verbose_name = 'Payment'
+        verbose_name_plural = 'Payments'
+        get_latest_by = 'created_at'
+        unique_together = (
+            ('user', 'event', 'ticket'),
+        )
 
     def __str__(self) -> str:
         return f'{self.user.username} - {self.event.name} - {self.ticket.name}'
