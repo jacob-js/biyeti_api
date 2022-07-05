@@ -33,12 +33,10 @@ class Purchase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticket')
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='user')
+    payment = models.ForeignKey('payments.Payment', on_delete=models.CASCADE, null=True)
     purchased_at = models.DateTimeField(auto_now_add=True)
     interval = models.FloatField(default=0)
     available = models.BooleanField(default=True)
-
-    # class Meta:
-    #     unique_together = (('ticket', 'user', 'interval', 'available'))
 
     def __str__(self):
         return '{} {} {}'.format(self.ticket.name, self.ticket.price, self.ticket.currency)
