@@ -14,6 +14,7 @@ class Payment(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
     ticket = models.ForeignKey('tickets.Ticket', on_delete=models.CASCADE)
+    paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
