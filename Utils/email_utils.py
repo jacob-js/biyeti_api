@@ -1,4 +1,3 @@
-from typing import Dict
 from django.core.mail import send_mail
 
 def send_simple_mail(
