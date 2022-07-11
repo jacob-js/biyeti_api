@@ -1,6 +1,7 @@
 import cloudinary.uploader #pylint disable=import-error
 from rest_framework.serializers import ModelSerializer, CharField
 from apps.agents.models import Agent
+from apps.wallets.models import Wallet
 from .models import Event, Category
 from Utils.imageUploader import cloudPhoto
 
@@ -22,6 +23,7 @@ class EventSerializer(ModelSerializer):
         validated_data.setdefault('cover', cover)
         event = Event(**validated_data)
         event.save()
+        Wallet.objects.create(event=event.id)
         Agent.objects.create(user=validated_data.get('user'), event=event, role='admin') # pylint: disable=no-member
         return event
 
