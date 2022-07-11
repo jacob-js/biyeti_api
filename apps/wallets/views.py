@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 
-from Utils.auth_utils import VerifyAdmin, VerifyToken
+from Utils.auth_utils import CheckIsAgent, CheckIsEventAdmin, VerifyAdmin, VerifyToken
 from Utils.helpers import sendRes
 from apps.wallets.models import Wallet
 from apps.wallets.serializers import WalletSerializer
@@ -18,3 +18,19 @@ def get_wallets(_):
         return sendRes(200, data=serializer.data)
     except:
         return sendRes(500, error='Internal server error')
+
+@api_view(['GET'])
+@permission_classes([VerifyToken, CheckIsAgent, CheckIsEventAdmin])
+def get_event_wallet(_, event_id):
+    """
+    Get event wallet
+    """
+    try:
+        wallet = Wallet.objects.get(event__id=event_id)
+        serializer = WalletSerializer(wallet)
+        return sendRes(200, data=serializer.data)
+    except Wallet.DoesNotExist:
+        return sendRes(404, error='Wallet not found')
+    except:
+        return sendRes(500, error='Internal server error')
+        
