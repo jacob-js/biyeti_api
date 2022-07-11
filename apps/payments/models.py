@@ -23,9 +23,6 @@ class Payment(models.Model):
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
         get_latest_by = 'created_at'
-        unique_together = (
-            ('user', 'event', 'ticket'),
-        )
 
     def __str__(self) -> str:
         return f'{self.user.username} - {self.event.name} - {self.ticket.name}'

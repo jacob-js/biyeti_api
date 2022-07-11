@@ -38,7 +38,8 @@ def initiate_payment(request):
                 return sendRes(201, msg='Payment initiated successfully')
             return sendRes(400, error=payment_request.json()['message'])
         return sendRes(400, msg='Invalid request', error=serializer.errors)
-    except:
+    except Exception as e:
+        print(e.__str__())
         return sendRes(500, error='Internal server error')
 
 @api_view(['POST'])
