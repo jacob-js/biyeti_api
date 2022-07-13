@@ -1,1 +1,1 @@
-web: gunicorn globals.wsgi --log-file -
+web: daphne -b 0.0.0.0 globals.asgi --log-file -
