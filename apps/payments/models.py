@@ -25,7 +25,7 @@ class Payment(models.Model):
         get_latest_by = 'created_at'
 
     def __str__(self) -> str:
-        return f'{self.user.username} - {self.event.name} - {self.ticket.name}'
+        return f'{self.user.firstname} {self.user.lastname}- {self.event.name} - {self.ticket.name}'
 
     def item(self) -> dict:
         """
@@ -33,10 +33,10 @@ class Payment(models.Model):
         """
         return {
             'id': str(self.id),
-            'amount': self.amount,
+            'amount': str(self.amount),
             'currency': self.currency,
             'user': self.user.item(),
             'event': self.event.item(),
             'ticket': self.ticket.item(),
-            'created_at': self.created_at
+            'created_at': str(self.created_at)
         }

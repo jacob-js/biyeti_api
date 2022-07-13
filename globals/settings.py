@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'drf_yasg',
+    'channels',
     'rest_framework',
     'cloudinary',
     'corsheaders',
@@ -56,7 +57,8 @@ INSTALLED_APPS = [
     'apps.agents',
     'apps.events',
     'apps.payments',
-    'apps.wallets'
+    'apps.wallets',
+    'apps.notifications'
 ]
 
 MIDDLEWARE = [
@@ -97,7 +99,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'globals.wsgi.application'
+ASGI_APPLICATION = 'globals.asgi.application'
 
+# Redis
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

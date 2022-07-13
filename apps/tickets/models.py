@@ -17,10 +17,10 @@ class Ticket(models.Model):
 
     def item(self) -> dict:
         return {
-            'id': self.id,
+            'id': str(self.id),
             'event': self.event.item(),
             'name': self.name,
-            'price': self.price,
+            'price': str(self.price),
             'currency': self.currency,
             'number_of_place': self.number_of_place,
             'caption': self.caption
@@ -40,3 +40,14 @@ class Purchase(models.Model):
 
     def __str__(self):
         return '{} {} {}'.format(self.ticket.name, self.ticket.price, self.ticket.currency)
+
+    def item(self) -> dict:
+        return {
+            'id': str(self.id),
+            'ticket': self.ticket.item(),
+            'user': self.user.item(),
+            'payment': self.payment.item(),
+            'purchased_at': str(self.purchased_at),
+            'interval': self.interval,
+            'available': self.available
+        }
