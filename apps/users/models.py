@@ -59,16 +59,16 @@ class User(AbstractUser):
 
     def item(self) -> dict:
         return {
-            'id': self.id,
+            'id': str(self.id),
             'email': self.email,
             'firstname': self.first_name,
             'lastname': self.lastname,
             'gender': self.gender,
-            'date_of_birth': self.date_of_birth,
+            'date_of_birth': str(self.date_of_birth),
             'phone_number': self.phone_number,
             'avatar': self.avatar,
             'city': self.city,
             'lat': self.lat,
             'long': self.long,
-            'created_at': self.created_at
+            'created_at': str(self.created_at)
         }

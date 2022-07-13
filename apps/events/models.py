@@ -36,13 +36,13 @@ class Event(models.Model):
         Return a dictionary with the event data
         """
         return {
-            'id': self.id,
-            'created_at': self.created_at,
+            'id': str(self.id),
+            'created_at': str(self.created_at),
             'name': self.name,
             'cover': self.cover,
-            'event_date': self.event_date,
+            'event_date': str(self.event_date),
             'description': self.description,
-            'category': self.category,
+            'category': str(self.category),
             'location': self.location,
             'long': self.long,
             'lat': self.lat
