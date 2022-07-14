@@ -1,1 +1,1 @@
-web: daphne -b 0.0.0.0 globals.asgi:application
+web: daphne --port $PORT -b 0.0.0.0 globals.asgi:application
