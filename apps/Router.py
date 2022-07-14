@@ -7,4 +7,5 @@ urlpatterns = [
     path('/events/', include('apps.events.urls')),
     path('/payments/', include('apps.payments.urls')),
     path('/wallets/', include('apps.wallets.urls')),
+    path('/notifications/', include('apps.notifications.urls')),
 ]

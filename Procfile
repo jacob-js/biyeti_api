@@ -1,1 +1,1 @@
-web: daphne --port $PORT -b 0.0.0.0 globals.asgi:application
+web: gunicorn globals.wsgi --log-file -
