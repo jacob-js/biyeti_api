@@ -13,7 +13,7 @@ class UserNotificationConsumer(AsyncJsonWebsocketConsumer):
         print("Connected to Nt")
         user_id = self.scope['url_route']['kwargs']['user_id']
         print("user : ", user_id)
-        self.channel_layer.groud_ad(user_id, self.channel_name)
+        self.channel_layer.groud_add(user_id, self.channel_name)
 
     async def disconnect(self, _):
         """
