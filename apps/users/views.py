@@ -156,7 +156,7 @@ class ProfileView(APIView):
         Update the profile of the user
         """
         try:
-            user = User.objects.get(id=request.user.id, is_active=True)
+            user = User.objects.get(id=request.user.id)
             serializer = UserSerializer(user)
             serializer.update(user, request.data)
             return sendRes(status.HTTP_200_OK, data=serializer.data, msg="Modification enregistrée")

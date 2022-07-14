@@ -1,11 +1,9 @@
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from firebase_admin import messaging
 
 from apps.tickets.models import Purchase
-from apps.tickets.serialzers import PurchaseSerializer
 
 # Create your models here.
 class Notification(models.Model):
@@ -47,12 +45,9 @@ def handle_new_purchase(sender, instance, created, **__): # pylint: disable=unus
             user_receiver=instance.user
         )
         notification.save()
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            str(instance.user.id),
-            {
-                'type': 'new.notif',
-                **notification.item()
-            }
-        )
+        message = messaging.Message(notification=messaging.Notification(
+            title='Nouvel achat du billet',
+            body=notification.body,
+        ), token=instance.user.fcm_token)
+        messaging.send(message=message)
         

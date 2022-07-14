@@ -90,6 +90,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.auth_provider = validated_data.get('gender', instance.auth_provider)
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         instance.city = validated_data.get('city', instance.city)
+        instance.fcm_token = validated_data.get('fcm_token', instance.fcm_token)
         instance.save()
         return instance
 

@@ -42,6 +42,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=255, null=False, unique=True)
     avatar = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255, null=True)
+    fcm_token = models.CharField(max_length=500, null=True, blank=True)
     lat = models.FloatField(null=True)
     long = models.FloatField(null=True)
     username = None
