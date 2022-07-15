@@ -46,7 +46,7 @@ class Purchase(models.Model):
             'id': str(self.id),
             'ticket': self.ticket.item(),
             'user': self.user.item(),
-            'payment': self.payment.item(),
+            'payment': self.payment.item() if self.payment else None,
             'purchased_at': str(self.purchased_at),
             'interval': self.interval,
             'available': self.available

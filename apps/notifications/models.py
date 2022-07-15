@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from firebase_admin import messaging
+from apps.notifications.utils import send_push_message
 
 from apps.tickets.models import Purchase
 
@@ -34,7 +34,7 @@ def handle_new_purchase(sender, instance, created, **__): # pylint: disable=unus
     """
     Handle new purchase.
     """
-    if created:
+    if created & instance.payment:
         notification = Notification(
             title='Nouvel achat du billet',
             body=f'Vous avez acheté un billet pour l\'événement {instance.ticket.event.name}',
@@ -45,9 +45,7 @@ def handle_new_purchase(sender, instance, created, **__): # pylint: disable=unus
             user_receiver=instance.user
         )
         notification.save()
-        message = messaging.Message(notification=messaging.Notification(
-            title='Nouvel achat du billet',
-            body=notification.body,
-        ), token=instance.user.fcm_token)
-        messaging.send(message=message)
+        send_push_message(instance.user.notif_token, notification.title, notification.body, {
+            "notif_id": notification.id
+        })
         
