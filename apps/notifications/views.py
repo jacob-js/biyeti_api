@@ -17,3 +17,21 @@ def get_user_notifications(request):
     results = paginator.paginate_queryset(notifications, request)
     serializer = NotificationSerializer(results, many=True)
     return sendRes(200, data=serializer.data)
+
+@api_view(['GET, PUT'])
+@permission_classes([VerifyToken])
+def notification_detail(request, notif_id):
+    """
+    This function is used to get or update a notification
+    """
+    try:
+        notification = Notification.objects.get(id=notif_id)
+    except Notification.DoesNotExist:
+        return sendRes(404, message="Notification not found")
+    if request.method == 'GET':
+        serializer = NotificationSerializer(notification)
+        return sendRes(200, data=serializer.data)
+    if request.method == 'PUT':
+        notification.update(status="read")
+        return sendRes(200, data=serializer.data)
+    return sendRes(400, message="Method not allowed")
