@@ -34,7 +34,7 @@ def handle_new_purchase(sender, instance, created, **__): # pylint: disable=unus
     """
     Handle new purchase.
     """
-    if created & instance.payment:
+    if created and instance.payment:
         notification = Notification(
             title='Nouvel achat du billet',
             body=f'Vous avez acheté un billet pour l\'événement {instance.ticket.event.name}',
