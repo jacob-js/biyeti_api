@@ -18,7 +18,7 @@ def get_user_notifications(request):
     serializer = NotificationSerializer(results, many=True)
     return paginator.get_paginated_response(serializer.data)
 
-@api_view(['GET, PUT'])
+@api_view(['GET', 'PUT'])
 @permission_classes([VerifyToken])
 def notification_detail(request, notif_id):
     """
