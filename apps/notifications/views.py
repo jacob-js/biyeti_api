@@ -32,6 +32,7 @@ def notification_detail(request, notif_id):
         serializer = NotificationSerializer(notification)
         return sendRes(200, data=serializer.data)
     if request.method == 'PUT':
-        notification.update(status="read")
+        notification.status = "read"
+        notification.save()
         return sendRes(200, data=serializer.data)
     return sendRes(400, message="Method not allowed")
