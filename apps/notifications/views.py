@@ -13,6 +13,8 @@ def get_user_notifications(request):
     This function is used to get user's notifications
     """
     notifications = Notification.objects.filter(user_receiver__id=request.user.id)
+    if "status" in request.query_params:
+        notifications = notifications.filter(user_receiver__id=request.user.id, status=request.query_params["status"])
     paginator = Pagination()
     results = paginator.paginate_queryset(notifications, request)
     serializer = NotificationSerializer(results, many=True)
