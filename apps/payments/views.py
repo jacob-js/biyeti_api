@@ -87,5 +87,6 @@ def callback(request):
             "notif_id": notification.id
         })
         return sendRes(400, error="Can't perform payment")
-    except:
+    except Exception as exc:
+        print("error : ", exc)
         return sendRes(500, error='Internal server error')
