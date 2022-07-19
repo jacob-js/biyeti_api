@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 
 from Utils.auth_utils import VerifyToken, create_token
 from Utils.helpers import sendRes
+from apps.notifications.models import Notification
+from apps.notifications.utils import send_push_message
 from apps.payments.models import Payment
 from apps.wallets.models import Wallet
 from globals.config import PAYMENT_ENDPOINT, PAYMENT_MERCHANT, PAYMENT_TOKEN, SERVER_URL
@@ -70,6 +72,20 @@ def callback(request):
                 'content-type': 'application/json'
             })
             return sendRes(201, msg='Ticket successfully bought')
+            
+        notification = Notification(
+            title="Impossible d'effectuer le paiement",
+            body="Votre paiement n'a pas pu être effectué. Veuillez réessayer.",
+            data={
+                'ticket': payment.ticket.item()
+            },
+            notification_type='purchase_error',
+            user_receiver=payment.user
+        )
+        notification.save()
+        send_push_message(payment.user.notif_token, notification.title, notification.body, {
+            "notif_id": notification.id
+        })
         return sendRes(400, error="Can't perform payment")
     except:
         return sendRes(500, error='Internal server error')

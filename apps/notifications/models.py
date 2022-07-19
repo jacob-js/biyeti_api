@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -16,6 +17,7 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=255, default='unread')
     user_receiver = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='notifications')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def item(self) -> dict:
         return {
@@ -25,7 +27,8 @@ class Notification(models.Model):
             'data': self.data,
             'notification_type': self.notification_type,
             'status': self.status,
-            'user_receiver': self.user_receiver.item()
+            'user_receiver': self.user_receiver.item(),
+            'created_at': self.created_at
         }
 
 
