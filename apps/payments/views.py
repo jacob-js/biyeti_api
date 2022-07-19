@@ -51,8 +51,8 @@ def callback(request):
     """
     try:
         data = request.data
+        payment = Payment.objects.get(id=data['reference'])
         if data['code'] == "0":
-            payment = Payment.objects.get(id=data['reference'])
             wallet = Wallet.objects.get(event__id=payment.event.id)
             payment.paid = True
             payment.save()
