@@ -53,8 +53,7 @@ def request_wallet_balance_transfer(request, event_id):
         return sendRes(200, msg='Balance transfer requested')
     except Wallet.DoesNotExist:
         return sendRes(404, error='Wallet not found')
-    except Exception as exc:
-        print(exc)
+    except:
         return sendRes(500, error='Internal server error')
 
 

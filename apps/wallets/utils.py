@@ -19,7 +19,7 @@ def send_request_transfer_email():
         <div style="font-weight: bold">Bookit Assistant</div>
     </p>
     """
-    return send_simple_mail(title, to_email=receiver, html_message=html_text)
+    return send_simple_mail(title, None, to_email=receiver, html_message=html_text)
 
 def send_success_transfer_email(receiver_email):
     """
@@ -38,4 +38,4 @@ def send_success_transfer_email(receiver_email):
         <div style="font-weight: bold">Bookit | votre billeterie en ligne</div>
     </p>
     """
-    return send_simple_mail(title, to_email=receiver_email, html_message=html_text)
+    return send_simple_mail(title, None, to_email=receiver_email, html_message=html_text)
