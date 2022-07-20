@@ -15,21 +15,24 @@ class TransferRequestSerializer(serializers.ModelSerializer):
     """
     Transfer request serializer
     """
+    phone_number = serializers.CharField(required=True)
+    amount = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)
+    currency = serializers.CharField(required=True)
+
     class Meta:
         model = TransferRequest
         fields = '__all__'
 
     def validate(self, attrs):
         try:
-            wallet = Wallet.objects.get(id=attrs.get('wallet'))
+            wallet = attrs.get('wallet')
+            wallet = WalletSerializer(wallet).data
             amount = attrs.get('amount')
             currency = attrs.get('currency')
             if amount <= 0:
-                raise serializers.ValidationError({ 'amount': 'Please enter a correct amount' })
-            if amount > wallet[f'{str(currency).lower()}_balance']:
-                raise serializers.ValidationError({ 'amount': 'Insuficient balance' })
+                raise serializers.ValidationError({ 'amount': 'Veuillez entrer un montant valid' })
+            if amount > float(wallet[f'{str(currency).lower()}_balance']):
+                raise serializers.ValidationError({ 'amount': 'Balance insuffisant' })
             return attrs
         except Wallet.DoesNotExist:
             raise serializers.ValidationError({ 'wallet': 'Invalid Wallet' }) from Wallet.DoesNotExist
-        except Exception as exc:
-            raise serializers.ValidationError({ 'server': 'Something went wrong !' }) from exc

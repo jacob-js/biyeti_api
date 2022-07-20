@@ -16,7 +16,7 @@ def send_request_transfer_email():
     </p>
     <p>
         Cheers </b>
-        <div style="font-weight: bold">Biyeti Assistant</div>
+        <div style="font-weight: bold">Bookit Assistant</div>
     </p>
     """
     return send_simple_mail(title, to_email=receiver, html_message=html_text)
@@ -35,7 +35,7 @@ def send_success_transfer_email(receiver_email):
     </p>
     <p>
         Cheers </b>
-        <div style="font-weight: bold">Biyeti | votre billeterie en ligne</div>
+        <div style="font-weight: bold">Bookit | votre billeterie en ligne</div>
     </p>
     """
     return send_simple_mail(title, to_email=receiver_email, html_message=html_text)

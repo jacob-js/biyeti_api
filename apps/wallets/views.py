@@ -46,13 +46,15 @@ def request_wallet_balance_transfer(request, event_id):
     try:
         wallet = Wallet.objects.get(event__id=event_id)
         serializer = TransferRequestSerializer(data={**request.data, 'wallet': wallet.id})
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return sendRes(400, msg='Invalid request', error=serializer.errors)
         serializer.save()
         send_request_transfer_email()
-        return sendRes(200, data={'message': 'Balance transfer requested'})
+        return sendRes(200, msg='Balance transfer requested')
     except Wallet.DoesNotExist:
         return sendRes(404, error='Wallet not found')
-    except:
+    except Exception as exc:
+        print(exc)
         return sendRes(500, error='Internal server error')
 
 
