@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 
 from Utils.auth_utils import CheckIsAgent, CheckIsEventAdmin, VerifyAdmin, VerifyToken
+from Utils.decorators.confirm_pwd import check_pwd
 from Utils.helpers import sendRes
 from apps.agents.models import Agent
 from apps.wallets.models import TransferRequest, Wallet
@@ -39,6 +40,7 @@ def get_event_wallet(_, event_id):
 
 @api_view(['POST'])
 @permission_classes([VerifyToken, CheckIsAgent, CheckIsEventAdmin])
+@check_pwd
 def request_wallet_balance_transfer(request, event_id):
     """
     Request wallet balance transfer

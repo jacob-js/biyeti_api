@@ -77,7 +77,7 @@ class GoogleLoginView(APIView):
             token = create_token(ser.data.get('id'))
             return sendRes(status.HTTP_202_ACCEPTED, msg='User created successfully', data={'token': token, 'user': ser.data})
         except Exception as error:
-            return sendRes(status.HTTP_500_INTERNAL_SERVER_ERROR, error=error.__str__())
+            return sendRes(status.HTTP_500_INTERNAL_SERVER_ERROR, error=str(error))
 
 class GetLogedUser(APIView):
     """
