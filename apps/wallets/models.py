@@ -1,5 +1,12 @@
 import uuid
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from apps.agents.models import Agent
+from apps.notifications.models import Notification
+
+from apps.notifications.utils import send_push_message
+from apps.wallets.utils import send_success_transfer_email
 
 # Create your models here.
 class Wallet(models.Model):
@@ -33,9 +40,9 @@ class Wallet(models.Model):
         return {
             'id': str(self.id),
             'event': self.event.item(),
-            'usd_balance': self.usd_balance,
-            'cdf_balance': self.cdf_balance,
-            'created_at': self.created_at
+            'usd_balance': str(self.usd_balance),
+            'cdf_balance': str(self.cdf_balance),
+            'created_at': str(self.created_at)
         }
 
 class TransferRequest(models.Model):
@@ -53,3 +60,40 @@ class TransferRequest(models.Model):
 
     def __str__(self) -> str:
         return f'{self.wallet.event.name} - {self.amount}{self.currency}'
+
+    def item(self) -> dict:
+        """
+        Returns a dict representation of the transfer request
+        """
+        return {
+            'id': str(self.id),
+            'wallet': self.wallet.item(),
+            'amount': str(self.amount),
+            'currency': self.currency,
+            'phone_number': self.phone_number,
+            'executed': self.executed,
+            'created_at': str(self.created_at)
+        }
+
+@receiver(post_save, sender=TransferRequest)
+def handle_transfer_request(sender, instance, created, **__): # pylint: disable=unused-argument
+    """
+    Handle transfer request.
+    """
+    if not created:
+        if instance.executed:
+            event_admin = Agent.objects.get(event__id=instance.wallet.event.id, role='admin')
+            wallet = instance.wallet
+            currency = instance.currency
+            if str(currency).lower() == 'cdf':
+                wallet.cdf_balance -= instance.amount
+            else:
+                wallet.usd_balance -= instance.amount
+            wallet.save()
+            notification = Notification(
+                title="Votre demande de transfert a été traitée",
+                body=f"Bonjour {event_admin.user.firstname}. \n \n Votre demande de transfert de {instance.amount}{instance.currency} a été traitée avec succès. \n \n Votre solde actuel est : \n {wallet.usd_balance} USD \n {wallet.cdf_balance} CDF.",
+                data=instance.item()
+            )
+            send_push_message(event_admin.user.notif_token, notification.title, notification.body, notification.data)
+            send_success_transfer_email(event_admin.user.email)
