@@ -95,5 +95,6 @@ def handle_transfer_request(sender, instance, created, **__): # pylint: disable=
                 body=f"Bonjour {event_admin.user.firstname}. \n \n Votre demande de transfert de {instance.amount}{instance.currency} a été traitée avec succès. \n \n Votre solde actuel est : \n {wallet.usd_balance} USD \n {wallet.cdf_balance} CDF.",
                 data=instance.item()
             )
+            notification.save()
             send_push_message(event_admin.user.notif_token, notification.title, notification.body, notification.data)
             send_success_transfer_email(event_admin.user.email)
