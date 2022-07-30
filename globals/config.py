@@ -19,7 +19,7 @@ email_host = env('EMAIL_HOST')
 email_port = env('EMAIL_PORT')
 email_host_user = env('EMAIL_HOST_USER')
 email_host_password = env('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = email_port == 587
 
 PAYMENT_ENDPOINT = env('PAYMENT_ENDPOINT')
 PAYMENT_TOKEN = env('PAYMENT_TOKEN')
