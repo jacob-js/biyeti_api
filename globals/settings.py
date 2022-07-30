@@ -188,7 +188,8 @@ REST_FRAMEWORK = {
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config.email_host
 EMAIL_PORT = config.email_port
-EMAIL_USE_TLS = config.EMAIL_USE_TLS
+EMAIL_USE_TLS = int(config.email_port) == 587
+EMAIL_USE_SSL = int(config.email_port) == 465
 EMAIL_HOST_USER = config.email_host_user
 EMAIL_HOST_PASSWORD = config.email_host_password
 DEFAULT_FROM_EMAIL = 'Bookit App'
