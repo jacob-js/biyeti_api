@@ -1,7 +1,9 @@
 from django.core.mail import send_mail
 
+from globals.settings import EMAIL_HOST_USER
+
 def send_simple_mail(
-    subject: str, message: str, to_email: str, from_email: str = 'Bookit App <info@bweteta.com>', html_message: str = None
+    subject: str, message: str, to_email: str, from_email: str = f'Bookit App <{EMAIL_HOST_USER}>', html_message: str = None
 ):
     """
     Send a simple email
