@@ -48,8 +48,9 @@ class LoginView(APIView):
     def post(self, request): # pylint: disable=missing-docstring
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        identifier : str = request.data['identifier']
         try:
-            user = User.objects.filter(Q(email=request.data['identifier']) | Q(phone_number=request.data['identifier'])).first()
+            user = User.objects.filter(Q(email=identifier.strip()) | Q(phone_number=identifier.strip())).first()
             if user is not None:
                 if user.check_password(request.data['password']):
                     ser = UserSerializer(user)
