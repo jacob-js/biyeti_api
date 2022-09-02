@@ -8,6 +8,7 @@ from Utils.oauth import Google
 from Utils.imageUploader import cloudPhoto
 from .models import User
 
+
 class UserSerializer(serializers.ModelSerializer):
     """
     User serializer class
@@ -15,12 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[
             UniqueValidator(
-                queryset=User.objects.all(),
+                queryset=User.objects.filter(~Q(email=None)),
                 message="Cet email existe déjà"
             )
         ]
     )
-    phone_number= serializers.CharField(
+    phone_number = serializers.CharField(
         validators=[
             UniqueValidator(
                 queryset=User.objects.all(),
@@ -28,21 +29,22 @@ class UserSerializer(serializers.ModelSerializer):
             )
         ]
     )
-    class Meta: # pylint: disable=missing-class-docstring, too-few-public-methods
+
+    class Meta:  # pylint: disable=missing-class-docstring, too-few-public-methods
         model = User
         fields = '__all__'
         extra_kwargs = {
-            'password': { 'write_only': True },
-            'created_at': { 'read_only': True },
-            'auth_provider': { 'read_only': True }
+            'password': {'write_only': True},
+            'created_at': {'read_only': True},
+            'auth_provider': {'read_only': True}
         }
 
     def validate(self, attrs: dict):
         pwd = attrs.get('password')
         if not re.match("^.*(?=.{8,})(?=.*\d)(?=.*[A-Za-z]).*$", pwd):
             raise serializers.ValidationError(
-                { 
-                    'password': 'Le mot de passe doit contenir au moins 8 caracteres inclus les chiffres et les lettres' 
+                {
+                    'password': 'Le mot de passe doit contenir au moins 8 caracteres inclus les chiffres et les lettres'
                 }
             )
 
@@ -61,16 +63,18 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             user = User.objects.get(~Q(id=instance.id), email=validated_data.get('email'))
             if user:
-                raise serializers.ValidationError({ 'email': 'Cet email existe déjà' })
+                raise serializers.ValidationError({'email': 'Cet email existe déjà'})
         except User.DoesNotExist:
             instance.email = validated_data.get('email', instance.email)
         try:
-            user = User.objects.get(~Q(id=instance.id), phone_number=validated_data.get('phone_number'))
-            if user:
-                raise serializers.ValidationError({ 'email': 'Ce numéro de téléphone existe déjà' })
+            phone_number = validated_data.get('phone_number', None)
+            if phone_number:
+                user = User.objects.get(~Q(id=instance.id), phone_number=validated_data.get('phone_number'))
+                if user:
+                    raise serializers.ValidationError({'email': 'Ce numéro de téléphone existe déjà'})
         except User.DoesNotExist:
             instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             # if no phone number, do nothing
             pass
 
@@ -94,14 +98,16 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class LoginSerializer(serializers.Serializer): # pylint: disable=abstract-method
+
+class LoginSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """
     Login serializer, required fields: (identifier, password)
     """
     identifier = serializers.CharField()
     password = serializers.CharField()
 
-class GoogleAuthSerializer(serializers.Serializer): # pylint: disable=abstract-method
+
+class GoogleAuthSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """
     Google login serializer
     """
@@ -111,8 +117,8 @@ class GoogleAuthSerializer(serializers.Serializer): # pylint: disable=abstract-m
         user_data = Google.validate(attrs.get('auth_token'))
         try:
             user_data['sub']
-        except Exception as exeception: # pylint: disable=broad-except
-            raise serializers.ValidationError( 'le jeton est invalid' ) from exeception
+        except Exception as exeception:  # pylint: disable=broad-except
+            raise serializers.ValidationError('le jeton est invalid') from exeception
         attrs.setdefault('email', user_data['email'])
         attrs.setdefault('firstname', user_data['given_name'])
         attrs.setdefault('lastname', user_data['family_name'])
@@ -121,7 +127,8 @@ class GoogleAuthSerializer(serializers.Serializer): # pylint: disable=abstract-m
 
         return attrs
 
-class UpdatePwdSerializer(serializers.Serializer): # pylint: disable=abstract-method
+
+class UpdatePwdSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """
     Update password serializer
     """
