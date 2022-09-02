@@ -27,7 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
                 queryset=User.objects.all(),
                 message="Ce numéro de téléphone existe déjà"
             )
-        ]
+        ],
+        allow_null=True
     )
 
     class Meta:  # pylint: disable=missing-class-docstring, too-few-public-methods
