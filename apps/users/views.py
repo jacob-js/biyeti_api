@@ -32,8 +32,8 @@ class ValidateAndCreateUser(APIView):
     Validate the code sent by the user and save the user in the database
     """
     permission_classes = [DecodeSignupToken]
+
     def post(self, request): # pylint: disable=missing-docstring
-        print(request.user_data)
         serializer = UserSerializer(data=request.user_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
