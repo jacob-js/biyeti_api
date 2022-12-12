@@ -194,4 +194,4 @@ EMAIL_USE_TLS = int(config.email_port) == 587
 EMAIL_USE_SSL = int(config.email_port) == 465
 EMAIL_HOST_USER = config.email_host_user
 EMAIL_HOST_PASSWORD = config.email_host_password
-DEFAULT_FROM_EMAIL = 'Bookit App'
+DEFAULT_FROM_EMAIL = 'Bookit App | Jacob Dev'
